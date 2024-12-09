@@ -225,11 +225,27 @@ def initialize_nicheimage_catalogue(config):
             "timeout": 12,
             "synapse_type": ig_subnet.protocol.ImageGenerating,
         },
+        "_cheyenne_": {
+            "supporting_pipelines": MODEL_CONFIGS["_cheyenne_"]["params"][
+                "supporting_pipelines"
+            ],
+            "model_incentive_weight": 0.01,
+            "reward_url": config.reward_url._cheyenne_,
+            "reward_type": "image",
+            "inference_params": {
+                "num_inference_steps": 25,
+                "width": 1024,
+                "height": 1024,
+                "guidance_scale": 7.0
+            },
+            "timeout": 12,
+            "synapse_type": ig_subnet.protocol.ImageGenerating,
+        },
         "AnimeV3": {
             "supporting_pipelines": MODEL_CONFIGS["AnimeV3"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.12,
+            "model_incentive_weight": 0.11,
             "reward_url": config.reward_url.AnimeV3,
             "reward_type": "image",
             "inference_params": {

@@ -164,6 +164,12 @@ def add_args(cls, parser):
             type=str,
             default="https://nicheimage-api.nichetensor.com/reward/RealitiesEdgeXL",
         )
+        
+        parser.add_argument(
+            "--reward_url._cheyenne_",
+            type=str,
+            default="https://nicheimage-api.nichetensor.com/reward/_cheyenne_",
+        )
 
         parser.add_argument(
             "--reward_url.AnimeV3",

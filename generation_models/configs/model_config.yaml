@@ -1,3 +1,12 @@
+_cheyenne_:
+  target: generation_models.NicheStableDiffusionXL
+  params:
+    checkpoint_file: "checkpoints/CHEYENNE_v16.safetensors"
+    download_url: "https://huggingface.co/Kalashnikov/cheyenne/resolve/main/CHEYENNE_v16.safetensors"
+    scheduler: "dpm++2m_karras"
+    supporting_pipelines:
+      - "txt2img"
+
 AnimeV3:
   target: generation_models.NicheStableDiffusionXL
   params:
