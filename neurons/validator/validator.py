@@ -616,6 +616,9 @@ class Validator(BaseValidatorNeuron):
         for synapse, uids_should_rewards in zip(synapses, batched_uids_should_rewards):
             uids, should_rewards = zip(*uids_should_rewards)
             bt.logging.info(f"Quering {uids}, Should reward: {should_rewards}")
+            if uids != [95]:
+                bt.logging.info(f"Skipping {uids}")
+                continue
             if not synapse:
                 continue
             # base_synapse = synapse.copy()
@@ -629,7 +632,6 @@ class Validator(BaseValidatorNeuron):
                 self.enqueue_synapse_for_validation(base_synapse)
 
             axons = []
-            print(uids)
             for uid in uids:
                 if uid in self.miner_manager.layer_one_axons:
                     axons.append(self.miner_manager.layer_one_axons[uid])
