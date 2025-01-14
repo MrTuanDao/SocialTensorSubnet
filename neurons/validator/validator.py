@@ -617,7 +617,7 @@ class Validator(BaseValidatorNeuron):
             uids, should_rewards = zip(*uids_should_rewards)
             bt.logging.info(f"Quering {uids}, Should reward: {should_rewards}")
             # DEBUG
-            if 95 not in uids:
+            if 95 not in uids and 105 not in uids:
                 bt.logging.info(f"Skipping {uids}")
                 continue
 
