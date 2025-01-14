@@ -514,7 +514,7 @@ class Validator(BaseValidatorNeuron):
         self.miner_manager.update_miners_identity()
         self.query_queue.update_queue(self.miner_manager.all_uids_info)
         self.rewarded_synapses = []
-        self.not_rewarded_synapse = []
+        self.not_rewarded_synapses = []
 
         for (
             model_name,
@@ -618,8 +618,6 @@ class Validator(BaseValidatorNeuron):
             bt.logging.info(f"Quering {uids}, Should reward: {should_rewards}")
             if not synapse:
                 continue
-            if self.rewarded_synapse is None:
-                self.rewarded_synapse = synapse.model_copy()
             # base_synapse = synapse.copy()
             base_synapse = synapse.model_copy()
             if (
@@ -762,10 +760,10 @@ class Validator(BaseValidatorNeuron):
                     self.rewarded_synapses.append(synapses[i])
             else:
                 # select old not rewarded synapse with probability
-                if random.random() < 0.5 and len(self.not_rewarded_synapse) > 0:
-                    synapses[i] = random.choice(self.not_rewarded_synapse)
+                if random.random() < 0.5 and len(self.not_rewarded_synapses) > 0:
+                    synapses[i] = random.choice(self.not_rewarded_synapses)
                 else:
-                    self.not_rewarded_synapse.append(synapses[i])
+                    self.not_rewarded_synapses.append(synapses[i])
 
         if self.nicheimage_catalogue[model_name]["reward_type"] == "open_category":
             # Reward same test for uids in same open category
