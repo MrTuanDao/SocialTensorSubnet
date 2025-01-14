@@ -152,10 +152,10 @@ class FixedCategoryRewardApp(BaseRewardApp):
     async def __call__(self, reward_request: RewardRequest):
         base_data = reward_request.base_data
         miner_data = reward_request.miner_data
-        validator_image = self.cache.get((base_data.model_name, base_data.prompt, base_data.seed))
+        validator_image = self.cache.get((base_data.prompt, base_data.seed))
         if validator_image is None:
             validator_image = await self.model_handle.generate.remote(prompt_data=base_data)
-            self.cache.set((base_data.model_name, base_data.prompt, base_data.seed), validator_image, expire=self.ttl)
+            self.cache.set((base_data.prompt, base_data.seed), validator_image, expire=self.ttl)
         
         miner_images = [d.image for d in miner_data]
         rewards = self.rewarder.get_reward(
