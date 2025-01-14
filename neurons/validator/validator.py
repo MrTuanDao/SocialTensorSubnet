@@ -74,6 +74,7 @@ class QueryQueue:
             for _ in range(int(proxy_rate_limit)):
                 proxy_model_queue.put(QueryItem(uid=uid))
         # Shuffle the queue
+        bt.logging.info("Before shuffling queue: ", self.synthentic_queue)
         for model_name, q in self.synthentic_queue.items():
             random.shuffle(q.queue)
             self.total_uids_remaining += len(q.queue)
@@ -85,6 +86,7 @@ class QueryQueue:
             bt.logging.info(
                 f"- Model {model_name} has {len(q.queue)} uids remaining for organic"
             )
+        bt.logging.info("After shuffling queue: ", self.synthentic_queue)
 
     def get_batch_query(self, batch_size: int):
         if not self.total_uids_remaining:
@@ -616,9 +618,11 @@ class Validator(BaseValidatorNeuron):
         for synapse, uids_should_rewards in zip(synapses, batched_uids_should_rewards):
             uids, should_rewards = zip(*uids_should_rewards)
             bt.logging.info(f"Quering {uids}, Should reward: {should_rewards}")
+            # DEBUG
             if 95 not in uids:
                 bt.logging.info(f"Skipping {uids}")
                 continue
+
             if not synapse:
                 continue
             # base_synapse = synapse.copy()
@@ -760,14 +764,18 @@ class Validator(BaseValidatorNeuron):
                 # select old rewarded synapse with probability
                 if random.random() < 0.8 and len(self.rewarded_synapses) > 0:
                     synapses[i] = random.choice(self.rewarded_synapses)
+                    bt.logging.info("Using old rewarded synapse")
                 else:
                     self.rewarded_synapses.append(synapses[i])
+                    bt.logging.info("Using new rewarded synapse")
             else:
                 # select old not rewarded synapse with probability
                 if random.random() < 0.5 and len(self.not_rewarded_synapses) > 0:
                     synapses[i] = random.choice(self.not_rewarded_synapses)
+                    bt.logging.info("Using old not rewarded synapse")
                 else:
                     self.not_rewarded_synapses.append(synapses[i])
+                    bt.logging.info("Using new not rewarded synapse")
 
         if self.nicheimage_catalogue[model_name]["reward_type"] == "open_category":
             # Reward same test for uids in same open category
