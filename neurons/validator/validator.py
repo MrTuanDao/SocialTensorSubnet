@@ -31,9 +31,9 @@ MODEL_CONFIGS = yaml.load(
 
 
 class QueryItem:
-    def __init__(self, uid: int):
+    def __init__(self, uid: int, should_reward: bool = False):
         self.uid = uid
-
+        self.should_reward = should_reward # currently only used for synthetic query
 
 class QueryQueue:
     def __init__(self, model_names: list[str], time_per_loop: int = 600):
@@ -67,7 +67,10 @@ class QueryQueue:
                 info["rate_limit"]
             )
             for _ in range(int(synthetic_rate_limit)):
-                synthentic_model_queue.put(QueryItem(uid=uid))
+                if uid in self.synthentic_rewarded:
+                    synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
+                else:
+                    synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
             for _ in range(int(proxy_rate_limit)):
                 proxy_model_queue.put(QueryItem(uid=uid))
         # Shuffle the queue
@@ -102,11 +105,7 @@ class QueryQueue:
                     more_data = True
                     query_item = q.get()
                     uids_to_query.append(query_item.uid)
-                    if query_item.uid in self.synthentic_rewarded:
-                        should_rewards.append(False)
-                    else:
-                        should_rewards.append(True)
-                        self.synthentic_rewarded.append(query_item.uid)
+                    should_rewards.append(query_item.should_reward)
 
                 yield model_name, uids_to_query, should_rewards, time_to_sleep
 
@@ -514,6 +513,8 @@ class Validator(BaseValidatorNeuron):
         loop_start = time.time()
         self.miner_manager.update_miners_identity()
         self.query_queue.update_queue(self.miner_manager.all_uids_info)
+        self.rewarded_synapses = []
+        self.not_rewarded_synapse = []
 
         for (
             model_name,
@@ -617,6 +618,8 @@ class Validator(BaseValidatorNeuron):
             bt.logging.info(f"Quering {uids}, Should reward: {should_rewards}")
             if not synapse:
                 continue
+            if self.rewarded_synapse is None:
+                self.rewarded_synapse = synapse.model_copy()
             # base_synapse = synapse.copy()
             base_synapse = synapse.model_copy()
             if (
@@ -749,6 +752,21 @@ class Validator(BaseValidatorNeuron):
                 synapses = ig_subnet.validator.get_challenge(
                     challenge_url, synapses, backup_func
                 )
+
+        for i, batch in enumerate(batched_uids_should_rewards):
+            if any([should_reward for _, should_reward in batch]):
+                # select old rewarded synapse with probability
+                if random.random() < 0.8:
+                    synapses[i] = random.choice(self.rewarded_synapses)
+                else:
+                    self.rewarded_synapses.append(synapses[i])
+            else:
+                # select old not rewarded synapse with probability
+                if random.random() < 0.5: 
+                    synapses[i] = random.choice(self.not_rewarded_synapse)
+                else:
+                    self.not_rewarded_synapse.append(synapses[i])
+
         if self.nicheimage_catalogue[model_name]["reward_type"] == "open_category":
             # Reward same test for uids in same open category
             for i, batch in enumerate(batched_uids_should_rewards):
