@@ -97,8 +97,8 @@ class CosineSimilarityReward(nn.Module):
         import datetime
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         for i, miner_image in enumerate(batched_miner_images):
-            base64_to_pil_image(miner_image).save(f"/workspace/miner_image_{timestamp}_{i}.png")
-        validator_image.save(f"/workspace/validator_image_{timestamp}.png")
+            base64_to_pil_image(miner_image).save(f"../miner_image_{timestamp}_{i}.png")
+        validator_image.save(f"../validator_image_{timestamp}.png")
         return rewards
 
     def get_black_hash(self, H, W) -> str:
