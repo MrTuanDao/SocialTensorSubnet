@@ -74,7 +74,6 @@ class QueryQueue:
             for _ in range(int(proxy_rate_limit)):
                 proxy_model_queue.put(QueryItem(uid=uid))
         # Shuffle the queue
-        bt.logging.info("Before shuffling queue: ", self.synthentic_queue)
         for model_name, q in self.synthentic_queue.items():
             random.shuffle(q.queue)
             self.total_uids_remaining += len(q.queue)
@@ -86,7 +85,6 @@ class QueryQueue:
             bt.logging.info(
                 f"- Model {model_name} has {len(q.queue)} uids remaining for organic"
             )
-        bt.logging.info("After shuffling queue: ", self.synthentic_queue)
 
     def get_batch_query(self, batch_size: int):
         if not self.total_uids_remaining:
@@ -515,8 +513,8 @@ class Validator(BaseValidatorNeuron):
         loop_start = time.time()
         self.miner_manager.update_miners_identity()
         self.query_queue.update_queue(self.miner_manager.all_uids_info)
-        self.rewarded_synapses = []
-        self.not_rewarded_synapses = []
+        self.rewarded_synapses = {model_name: [] for model_name in self.nicheimage_catalogue.keys()}
+        self.not_rewarded_synapses = {model_name: [] for model_name in self.nicheimage_catalogue.keys()}
 
         for (
             model_name,
@@ -762,19 +760,20 @@ class Validator(BaseValidatorNeuron):
         for i, batch in enumerate(batched_uids_should_rewards):
             if any([should_reward for _, should_reward in batch]):
                 # select old rewarded synapse with probability
-                if random.random() < 0.8 and len(self.rewarded_synapses) > 0:
-                    synapses[i] = random.choice(self.rewarded_synapses)
+                # if random.random() < 0.8 and len(self.rewarded_synapses[model_name]) > 0:
+                if len(self.rewarded_synapses[model_name]) > 0: # DEBUG
+                    synapses[i] = random.choice(self.rewarded_synapses[model_name])
                     bt.logging.info("Using old rewarded synapse")
                 else:
-                    self.rewarded_synapses.append(synapses[i])
+                    self.rewarded_synapses[model_name].append(synapses[i])
                     bt.logging.info("Using new rewarded synapse")
             else:
                 # select old not rewarded synapse with probability
-                if random.random() < 0.5 and len(self.not_rewarded_synapses) > 0:
-                    synapses[i] = random.choice(self.not_rewarded_synapses)
+                if random.random() < 0.5 and len(self.not_rewarded_synapses[model_name]) > 0:
+                    synapses[i] = random.choice(self.not_rewarded_synapses[model_name])
                     bt.logging.info("Using old not rewarded synapse")
                 else:
-                    self.not_rewarded_synapses.append(synapses[i])
+                    self.not_rewarded_synapses[model_name].append(synapses[i])
                     bt.logging.info("Using new not rewarded synapse")
 
         if self.nicheimage_catalogue[model_name]["reward_type"] == "open_category":
