@@ -92,6 +92,13 @@ class CosineSimilarityReward(nn.Module):
                         reward = self.matching_image(miner_image, validator_image)
 
             rewards.append(reward)
+        
+        # DEBUG
+        from uuid import uuid4
+        id = uuid4()
+        for i, miner_image in enumerate(batched_miner_images):
+            miner_image.save(f"/workspace/miner_image_{id}_{i}.png")
+        validator_image.save(f"/workspace/validator_image_{id}.png")
         return rewards
 
     def get_black_hash(self, H, W) -> str:
