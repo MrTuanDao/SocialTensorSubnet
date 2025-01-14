@@ -756,13 +756,13 @@ class Validator(BaseValidatorNeuron):
         for i, batch in enumerate(batched_uids_should_rewards):
             if any([should_reward for _, should_reward in batch]):
                 # select old rewarded synapse with probability
-                if random.random() < 0.8:
+                if random.random() < 0.8 and len(self.rewarded_synapses) > 0:
                     synapses[i] = random.choice(self.rewarded_synapses)
                 else:
                     self.rewarded_synapses.append(synapses[i])
             else:
                 # select old not rewarded synapse with probability
-                if random.random() < 0.5: 
+                if random.random() < 0.5 and len(self.not_rewarded_synapse) > 0:
                     synapses[i] = random.choice(self.not_rewarded_synapse)
                 else:
                     self.not_rewarded_synapse.append(synapses[i])
