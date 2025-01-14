@@ -634,7 +634,7 @@ class Validator(BaseValidatorNeuron):
                     axons.append(self.miner_manager.layer_one_axons[uid])
                 else:
                     axons.append(self.metagraph.axons[uid])
-            print("axons", axons)
+            bt.logging.info(f"axons: {axons}")
             responses = dendrite.query(
                 axons=axons,
                 synapse=synapse,
