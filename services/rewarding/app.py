@@ -162,6 +162,8 @@ class FixedCategoryRewardApp(BaseRewardApp):
 
             validator_image = await self.model_handle.generate.remote(prompt_data=base_data)
             self.cache.set((base_data.prompt, base_data.seed), validator_image, expire=self.ttl)
+            # DEBUG
+            self.old_rewarded_synapses.add((base_data.prompt, base_data.seed))
         # DEBUG
         else:
             print("Using cached validator image", flush=True)

@@ -80,7 +80,7 @@ class QueryQueue:
             bt.logging.info(f"Before shuffling queue: {q.queue}")
 
             random.shuffle(q.queue)
-            
+
             # DEBUG
             bt.logging.info(f"After shuffling queue: {q.queue}")
 
@@ -647,7 +647,7 @@ class Validator(BaseValidatorNeuron):
                     axons.append(self.miner_manager.layer_one_axons[uid])
                 else:
                     axons.append(self.metagraph.axons[uid])
-            bt.logging.info(f"axons: {axons}")
+
             responses = dendrite.query(
                 axons=axons,
                 synapse=synapse,
