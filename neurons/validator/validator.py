@@ -66,6 +66,7 @@ class QueryQueue:
             synthetic_rate_limit, proxy_rate_limit = self.get_rate_limit_by_type(
                 info["rate_limit"]
             )
+            bt.logging.info(f"Synthetic rate limit: {synthetic_rate_limit}") # DEBUG
             for _ in range(int(synthetic_rate_limit)):
                 if uid in self.synthentic_rewarded:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
@@ -77,12 +78,12 @@ class QueryQueue:
         for model_name, q in self.synthentic_queue.items():
             # DEBUG
             bt.logging.info(f"Model name: {model_name}")
-            bt.logging.info(f"Before shuffling queue: {q.queue}")
+            bt.logging.info(f"Before shuffling queue: {[item.uid for item in q.queue]}")
 
             random.shuffle(q.queue)
 
             # DEBUG
-            bt.logging.info(f"After shuffling queue: {q.queue}")
+            bt.logging.info(f"After shuffling queue: {[item.uid for item in q.queue]}")
 
             self.total_uids_remaining += len(q.queue)
             bt.logging.info(
@@ -768,13 +769,13 @@ class Validator(BaseValidatorNeuron):
         for i, batch in enumerate(batched_uids_should_rewards):
             if any([should_reward for _, should_reward in batch]):
                 # select old rewarded synapse with probability
-                # if random.random() < 0.8 and len(self.rewarded_synapses[model_name]) > 0:
-                if len(self.rewarded_synapses[model_name]) > 0: # DEBUG
+                if random.random() < 0.8 and len(self.rewarded_synapses[model_name]) > 0:
+                # if len(self.rewarded_synapses[model_name]) > 0: # DEBUG
                     synapses[i] = random.choice(self.rewarded_synapses[model_name])
-                    bt.logging.info("Using old rewarded synapse")
+                    # bt.logging.info("Using old rewarded synapse")
                 else:
                     self.rewarded_synapses[model_name].append(synapses[i])
-                    bt.logging.info("Using new rewarded synapse")
+                    # bt.logging.info("Using new rewarded synapse")
             else:
                 # select old not rewarded synapse with probability
                 if random.random() < 0.5 and len(self.not_rewarded_synapses[model_name]) > 0:

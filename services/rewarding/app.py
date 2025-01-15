@@ -147,9 +147,9 @@ class FixedCategoryRewardApp(BaseRewardApp):
         self.rewarder = CosineSimilarityReward()
         self.model_handle = model_handle
         self.cache = dc.Cache("reward_app_cache")
-        # self.ttl = 1800
+        self.ttl = 1800
         self.old_rewarded_synapses = set()
-        self.ttl = 1 # DEBUG
+        # self.ttl = 1 # DEBUG
 
     async def __call__(self, reward_request: RewardRequest):
         base_data = reward_request.base_data
@@ -157,16 +157,16 @@ class FixedCategoryRewardApp(BaseRewardApp):
         validator_image = self.cache.get((base_data.prompt, base_data.seed))
         if validator_image is None:
             # DEBUG
-            if (base_data.prompt, base_data.seed) in self.old_rewarded_synapses:
-                print("Deleted old validator image -> ttl is expired", flush=True)
+            # if (base_data.prompt, base_data.seed) in self.old_rewarded_synapses:
+            #     print("Deleted old validator image -> ttl is expired", flush=True)
 
             validator_image = await self.model_handle.generate.remote(prompt_data=base_data)
             self.cache.set((base_data.prompt, base_data.seed), validator_image, expire=self.ttl)
             # DEBUG
-            self.old_rewarded_synapses.add((base_data.prompt, base_data.seed))
+            # self.old_rewarded_synapses.add((base_data.prompt, base_data.seed))
         # DEBUG
-        else:
-            print("Using cached validator image", flush=True)
+        # else:
+        #     print("Using cached validator image", flush=True)
         miner_images = [d.image for d in miner_data]
         rewards = self.rewarder.get_reward(
             validator_image, miner_images, base_data.pipeline_type
