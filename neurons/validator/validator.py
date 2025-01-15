@@ -72,6 +72,9 @@ class QueryQueue:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
                 else:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
+                    self.synthentic_rewarded.append(uid)
+                
+            bt.logging.info(f"Synthetic queue: {[item.uid for item in synthentic_model_queue.queue]}") # DEBUG
             for _ in range(int(proxy_rate_limit)):
                 proxy_model_queue.put(QueryItem(uid=uid))
         # Shuffle the queue
