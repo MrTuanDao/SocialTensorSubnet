@@ -75,7 +75,15 @@ class QueryQueue:
                 proxy_model_queue.put(QueryItem(uid=uid))
         # Shuffle the queue
         for model_name, q in self.synthentic_queue.items():
+            # DEBUG
+            bt.logging.info(f"Model name: {model_name}")
+            bt.logging.info(f"Before shuffling queue: {q.queue}")
+
             random.shuffle(q.queue)
+            
+            # DEBUG
+            bt.logging.info(f"After shuffling queue: {q.queue}")
+
             self.total_uids_remaining += len(q.queue)
             bt.logging.info(
                 f"- Model {model_name} has {len(q.queue)} uids remaining for synthentic"

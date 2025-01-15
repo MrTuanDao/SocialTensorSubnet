@@ -148,6 +148,7 @@ class FixedCategoryRewardApp(BaseRewardApp):
         self.model_handle = model_handle
         self.cache = dc.Cache("reward_app_cache")
         # self.ttl = 1800
+        self.old_rewarded_synapses = set()
         self.ttl = 10 # DEBUG
 
     async def __call__(self, reward_request: RewardRequest):
@@ -155,6 +156,10 @@ class FixedCategoryRewardApp(BaseRewardApp):
         miner_data = reward_request.miner_data
         validator_image = self.cache.get((base_data.prompt, base_data.seed))
         if validator_image is None:
+            # DEBUG
+            if (base_data.prompt, base_data.seed) in self.old_rewarded_synapses:
+                print("Deleted old validator image -> ttl is expired", flush=True)
+
             validator_image = await self.model_handle.generate.remote(prompt_data=base_data)
             self.cache.set((base_data.prompt, base_data.seed), validator_image, expire=self.ttl)
         # DEBUG
