@@ -149,7 +149,7 @@ class FixedCategoryRewardApp(BaseRewardApp):
         self.cache = dc.Cache("reward_app_cache")
         # self.ttl = 1800
         self.old_rewarded_synapses = set()
-        self.ttl = 10 # DEBUG
+        self.ttl = 1 # DEBUG
 
     async def __call__(self, reward_request: RewardRequest):
         base_data = reward_request.base_data
