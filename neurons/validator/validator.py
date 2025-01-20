@@ -69,13 +69,16 @@ class QueryQueue:
 
             # DEBUG
             synthetic_rate_limit = 20
+            self.synthentic_rewarded.append(uid)
             for _ in range(int(synthetic_rate_limit)):
-                self.synthentic_rewarded.append(uid)
                 if _ < 10:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
                 else:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
-
+            bt.logging.info(f"synthentic_rewarded: {self.synthentic_rewarded}")
+            bt.logging.info(f"synthentic_model_queue: {[q.uid for q in synthentic_model_queue.queue]}")
+            bt.logging.info(f"synthentic_model_queue: {[q.should_reward for q in synthentic_model_queue.queue]}")
+            # END DEBUG
 
             # for _ in range(int(synthetic_rate_limit)):
             #     if uid in self.synthentic_rewarded:
