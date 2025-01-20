@@ -790,11 +790,14 @@ class Validator(BaseValidatorNeuron):
                 else:
                     # select old not rewarded synapse with probability
                     if random.random() < 0.1 and len(self.not_rewarded_synapses[model_name]) > 0:
+                        bt.logging.info(f"Using old not rewarded synapse {self.not_rewarded_synapses[model_name]}")
                         synapses[i] = random.choice(self.not_rewarded_synapses[model_name]).model_copy(deep=True)
                     else:
                         # limit the number of not rewarded synapses to be less or equal the number of rewarded synapses
                         if len(self.not_rewarded_synapses[model_name]) < len(self.rewarded_synapses[model_name]):
                             self.not_rewarded_synapses[model_name].append(synapses[i].model_copy(deep=True))
+                            # DEBUG
+                            bt.logging.info(f"Adding new synapse {synapses[i]} to not_rewarded_synapses")
 
         if self.nicheimage_catalogue[model_name]["reward_type"] == "open_category":
             # Reward same test for uids in same open category
