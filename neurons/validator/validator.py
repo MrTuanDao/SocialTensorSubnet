@@ -769,6 +769,7 @@ class Validator(BaseValidatorNeuron):
 
         if self.nicheimage_catalogue[model_name]["reward_type"] != "open_category":
             for i, batch in enumerate(batched_uids_should_rewards):
+                bt.logging.info(batch)
                 if any([should_reward for _, should_reward in batch]):
                     # select old rewarded synapse with probability
                     rand_val = random.random()
@@ -776,7 +777,7 @@ class Validator(BaseValidatorNeuron):
                         if rand_val < 0.8:  # 80% chance to use existing synapse
                             synapses[i] = random.choice(self.rewarded_synapses[model_name]).model_copy(deep=True)
                             bt.logging.info(f"Using existing synapse {synapses[i]}")
-                        else:
+                        else: # 10% chance to use existing synapse with new seed
                             synapse = random.choice(self.rewarded_synapses[model_name]).model_copy(deep=True)
                             synapse.seed = random.randint(0, 1e9)
                             synapses[i] = synapse
