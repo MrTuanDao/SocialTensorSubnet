@@ -117,7 +117,7 @@ class Miner(BaseMinerNeuron):
         try:
             # DEBUG
             validator_uid = self.metagraph.hotkeys.index(synapse.dendrite.hotkey)
-            if validator_uid == 95:
+            if validator_uid == 96:
                 return False, "All passed!"
             else:
                 bt.logging.info(f"Blacklisting {validator_uid}")
