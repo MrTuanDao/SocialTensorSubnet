@@ -67,25 +67,12 @@ class QueryQueue:
                 info["rate_limit"]
             )
 
-            # DEBUG
-            synthetic_rate_limit = 20
-            self.synthentic_rewarded.append(uid)
             for _ in range(int(synthetic_rate_limit)):
-                if _ < 10:
-                    synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
-                else:
+                if uid in self.synthentic_rewarded:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
-            bt.logging.info(f"synthentic_rewarded: {self.synthentic_rewarded}")
-            bt.logging.info(f"synthentic_model_queue: {[q.uid for q in synthentic_model_queue.queue]}")
-            bt.logging.info(f"synthentic_model_queue: {[q.should_reward for q in synthentic_model_queue.queue]}")
-            # END DEBUG
-
-            # for _ in range(int(synthetic_rate_limit)):
-            #     if uid in self.synthentic_rewarded:
-            #         synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
-            #     else:
-            #         synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
-            #         self.synthentic_rewarded.append(uid)
+                else:
+                    synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
+                    self.synthentic_rewarded.append(uid)
             for _ in range(int(proxy_rate_limit)):
                 proxy_model_queue.put(QueryItem(uid=uid))
         # Shuffle the queue
@@ -769,28 +756,23 @@ class Validator(BaseValidatorNeuron):
 
         if self.nicheimage_catalogue[model_name]["reward_type"] != "open_category":
             for i, batch in enumerate(batched_uids_should_rewards):
-                bt.logging.info(batch)
                 if any([should_reward for _, should_reward in batch]):
                     # select old rewarded synapse with probability
                     rand_val = random.random()
                     if len(self.rewarded_synapses[model_name]) > 0 and rand_val < 0.9:
                         if rand_val < 0.8:  # 80% chance to use existing synapse
                             synapses[i] = random.choice(self.rewarded_synapses[model_name]).model_copy(deep=True)
-                            bt.logging.info(f"Using existing synapse {synapses[i]}")
                         else: # 10% chance to use existing synapse with new seed
                             synapse = random.choice(self.rewarded_synapses[model_name]).model_copy(deep=True)
                             synapse.seed = random.randint(0, 1e9)
                             synapses[i] = synapse
-                            bt.logging.info(f"Using existing synapse with new seed {synapses[i]}")
                     else:
                         # else: 10% chance to use new synapse (already created)
                         self.rewarded_synapses[model_name].append(synapses[i].model_copy(deep=True))
-                        bt.logging.info(f"Adding new synapse {synapses[i]} to rewarded_synapses")
 
                 else:
                     # select old not rewarded synapse with probability
                     if random.random() < 0.1 and len(self.not_rewarded_synapses[model_name]) > 0:
-                        bt.logging.info(f"Using old not rewarded synapse {self.not_rewarded_synapses[model_name]}")
                         synapses[i] = random.choice(self.not_rewarded_synapses[model_name]).model_copy(deep=True)
                     elif len(self.not_rewarded_synapses[model_name]) < len(self.rewarded_synapses[model_name]):
                         # limit the number of not rewarded synapses to be less or equal the number of rewarded synapses
