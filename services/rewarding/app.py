@@ -145,12 +145,8 @@ class FixedCategoryRewardApp(BaseRewardApp):
         super().__init__(args)
         self.rewarder = CosineSimilarityReward()
         self.model_handle = model_handle
-        # self.cache = dc.Cache("fixed_category_cache")
-        # self.ttl = 600
-        # DEBUG
-        self.cache = dc.Cache("fixed_category_cache", size_limit=200*1024*1024)
+        self.cache = dc.Cache("fixed_category_cache")
         self.ttl = 600
-        # END DEBUG
 
     async def __call__(self, reward_request: RewardRequest):
         base_data = reward_request.base_data
@@ -159,10 +155,6 @@ class FixedCategoryRewardApp(BaseRewardApp):
         if not validator_image:
             validator_image = await self.model_handle.generate.remote(prompt_data=base_data)
             self.cache.set(base_data, validator_image, expire=self.ttl)
-        # DEBUG
-        else:
-            print('cache hit', flush=True)
-        # END DEBUG
 
         miner_images = [d.image for d in miner_data]
         rewards = self.rewarder.get_reward(
