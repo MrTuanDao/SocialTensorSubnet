@@ -149,7 +149,7 @@ class FixedCategoryRewardApp(BaseRewardApp):
         # self.ttl = 600
         # DEBUG
         self.cache = dc.Cache("fixed_category_cache", size_limit=200*1024*1024)
-        self.ttl = 10
+        self.ttl = 600
         # END DEBUG
 
     async def __call__(self, reward_request: RewardRequest):
