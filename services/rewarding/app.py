@@ -155,6 +155,10 @@ class FixedCategoryRewardApp(BaseRewardApp):
         if not validator_image:
             validator_image = await self.model_handle.generate.remote(prompt_data=base_data)
             self.cache.set(base_data, validator_image, expire=self.ttl)
+        # DEBUG
+        else:
+            print('cache hit', flush=True)
+        # END DEBUG
 
         miner_images = [d.image for d in miner_data]
         rewards = self.rewarder.get_reward(
