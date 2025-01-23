@@ -68,7 +68,7 @@ class QueryQueue:
             )
 
             # DEBUG
-            if uid != 96: continue
+            if uid != 95: continue
             synthetic_rate_limit = 10
             for _ in range(int(synthetic_rate_limit)):
                 if _ < 5:
