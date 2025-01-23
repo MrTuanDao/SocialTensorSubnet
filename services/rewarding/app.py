@@ -146,7 +146,10 @@ class FixedCategoryRewardApp(BaseRewardApp):
         self.rewarder = CosineSimilarityReward()
         self.model_handle = model_handle
         self.cache = dc.Cache("fixed_category_cache")
-        self.ttl = 600
+        # self.ttl = 600
+        # DEBUG
+        self.ttl = 10
+        # END DEBUG
 
     async def __call__(self, reward_request: RewardRequest):
         base_data = reward_request.base_data
