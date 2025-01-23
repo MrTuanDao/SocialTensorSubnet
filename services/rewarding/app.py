@@ -151,7 +151,7 @@ class FixedCategoryRewardApp(BaseRewardApp):
     async def __call__(self, reward_request: RewardRequest):
         base_data = reward_request.base_data
         miner_data = reward_request.miner_data
-        validator_image = self.cache.get(base_data) # TODO: check if dc.Cache can save with key as base_data
+        validator_image = self.cache.get(base_data)
         if not validator_image:
             validator_image = await self.model_handle.generate.remote(prompt_data=base_data)
             self.cache.set(base_data, validator_image, expire=self.ttl)
