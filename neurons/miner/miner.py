@@ -115,6 +115,15 @@ class Miner(BaseMinerNeuron):
     async def blacklist(self, synapse: ImageGenerating) -> Tuple[bool, str]:
         bt.logging.info(f"synapse in blacklist {synapse}")
         try:
+            # DEBUG
+            validator_uid = self.metagraph.hotkeys.index(synapse.dendrite.hotkey)
+            if validator_uid == 96:
+                bt.logging.info(f"Passing validator {validator_uid}")
+                return False, "All passed!"
+            else:
+                bt.logging.info(f"Blacklisting validator {validator_uid}")
+                return True, "All passed!"
+
             if synapse.dendrite.hotkey not in self.metagraph.hotkeys:
                 # Ignore requests from unrecognized entities.
                 bt.logging.trace(
