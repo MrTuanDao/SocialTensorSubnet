@@ -673,10 +673,8 @@ class Validator(BaseValidatorNeuron):
                 axons.append(self.miner_manager.layer_one_axons[uid])
             else:
                 axons.append(self.metagraph.axons[uid])
-        start_query = time.time() # DEBUG
         _responses = query_axons(axons, synapses)
-        end_query = time.time() # DEBUG
-        bt.logging.info(f"Time taken for query: {end_query - start_query}") # DEBUG
+        sum_reward_time = 0
 
         for synapse, uids_should_rewards, response in zip(synapses, batched_uids_should_rewards, _responses):
             start_loop = time.time() # DEBUG
@@ -761,6 +759,7 @@ class Validator(BaseValidatorNeuron):
                             self.miner_manager,
                         )
                         end_reward = time.time() # DEBUG
+                        sum_reward_time += end_reward - start_reward
                         bt.logging.info(f"Time taken for reward: {end_reward - start_reward}") # DEBUG
 
                         # Scale Reward based on Miner Volume
@@ -784,6 +783,7 @@ class Validator(BaseValidatorNeuron):
 
         end_async_query = time.time() # DEBUG
         bt.logging.info(f"Time taken for async query: {end_async_query - start_async_query}") # DEBUG
+        bt.logging.info(f"Time taken for reward: {sum_reward_time}") # DEBUG
 
     def prepare_challenge(self, uids_should_rewards, model_name, pipeline_type):
         """
