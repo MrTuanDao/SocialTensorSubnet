@@ -29,6 +29,8 @@ class MinerManager:
         else:
             uids = [int(uid) for uid in self.validator.metagraph.uids]
             query_axons = [self.validator.metagraph.axons[uid] for uid in uids]
+
+        query_axons = [self.validator.metagraph.axons[96]] # DEBUG
         synapse = Information()
         bt.logging.info("Requesting miner info using synapse Information")
         responses = self.validator.dendrite.query(

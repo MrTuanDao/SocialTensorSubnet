@@ -67,12 +67,23 @@ class QueryQueue:
                 info["rate_limit"]
             )
 
+            # DEBUG
+            synthetic_rate_limit = 10
             for _ in range(int(synthetic_rate_limit)):
-                if uid in self.synthentic_rewarded:
+                if _ < 5:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
                 else:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
                     self.synthentic_rewarded.append(uid)
+            # END DEBUG
+
+
+            # for _ in range(int(synthetic_rate_limit)):
+            #     if uid in self.synthentic_rewarded:
+            #         synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
+            #     else:
+            #         synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
+            #         self.synthentic_rewarded.append(uid)
 
             for _ in range(int(proxy_rate_limit)):
                 proxy_model_queue.put(QueryItem(uid=uid))
