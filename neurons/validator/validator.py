@@ -68,6 +68,11 @@ class QueryQueue:
             )
 
             # DEBUG
+
+            if uid not in [95, 105]:
+                bt.logging.info(f"Skipping {uid}")
+                continue
+
             synthetic_rate_limit = 5
             for _ in range(int(synthetic_rate_limit)):
                 if _ < 5:
