@@ -67,28 +67,12 @@ class QueryQueue:
                 info["rate_limit"]
             )
 
-            # DEBUG
-
-            if uid not in [95, 105]:
-                bt.logging.info(f"Skipping {uid}")
-                continue
-
-            synthetic_rate_limit = 5
             for _ in range(int(synthetic_rate_limit)):
-                if _ < 5:
-                    synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
-                else:
+                if uid in self.synthentic_rewarded:
                     synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
+                else:
+                    synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
                     self.synthentic_rewarded.append(uid)
-            # END DEBUG
-
-
-            # for _ in range(int(synthetic_rate_limit)):
-            #     if uid in self.synthentic_rewarded:
-            #         synthentic_model_queue.put(QueryItem(uid=uid, should_reward=False))
-            #     else:
-            #         synthentic_model_queue.put(QueryItem(uid=uid, should_reward=True))
-            #         self.synthentic_rewarded.append(uid)
 
             for _ in range(int(proxy_rate_limit)):
                 proxy_model_queue.put(QueryItem(uid=uid))
@@ -623,7 +607,6 @@ class Validator(BaseValidatorNeuron):
         uids: list[int],
         should_rewards: list[int],
     ):
-        start_async_query = time.time() # DEBUG
         dendrite = bt.dendrite(self.wallet)
         pipeline_type = random.choice(
             self.nicheimage_catalogue[model_name]["supporting_pipelines"]
@@ -639,8 +622,6 @@ class Validator(BaseValidatorNeuron):
             Query asynchronously multiple axons with multiple synapses
             """
             responses = [None] * len(axons)
-            # return responses
-            # Create event loop and run gather
             try:
                 loop = asyncio.get_event_loop()
                 responses = loop.run_until_complete(asyncio.gather(
@@ -674,10 +655,8 @@ class Validator(BaseValidatorNeuron):
             else:
                 axons.append(self.metagraph.axons[uid])
         _responses = query_axons(axons, synapses)
-        sum_reward_time = 0
 
         for synapse, uids_should_rewards, response in zip(synapses, batched_uids_should_rewards, _responses):
-            start_loop = time.time() # DEBUG
             uids, should_rewards = zip(*uids_should_rewards)
             bt.logging.info(f"Quering {uids}, Should reward: {should_rewards}")
             if not synapse:
@@ -698,12 +677,6 @@ class Validator(BaseValidatorNeuron):
                 else:
                     axons.append(self.metagraph.axons[uid])
 
-            # responses = dendrite.query(
-            #     axons=axons,
-            #     synapse=synapse,
-            #     deserialize=False,
-            #     timeout=self.nicheimage_catalogue[model_name]["timeout"],
-            # )
             responses = [response]
             reward_responses = [
                 response
@@ -722,7 +695,6 @@ class Validator(BaseValidatorNeuron):
                 args=(self.config.storage_url, responses, uids),
                 daemon=True,
             )
-            start_store = time.time() # DEBUG
             store_thread.start()
 
             process_times = [
@@ -749,7 +721,6 @@ class Validator(BaseValidatorNeuron):
                             base_synapse, reward_responses, reward_uids
                         )
                     else:
-                        start_reward = time.time() # DEBUG
                         reward_uids, rewards = ig_subnet.validator.get_reward(
                             reward_url,
                             base_synapse,
@@ -758,11 +729,8 @@ class Validator(BaseValidatorNeuron):
                             self.nicheimage_catalogue[model_name].get("timeout", 12),
                             self.miner_manager,
                         )
-                        end_reward = time.time() # DEBUG
-                        sum_reward_time += end_reward - start_reward
-                        bt.logging.info(f"Time taken for reward: {end_reward - start_reward}") # DEBUG
 
-                        # Scale Reward based on Miner Volume
+                    # Scale Reward based on Miner Volume
                     for i, uid in enumerate(reward_uids):
                         if rewards[i] > 0:
                             rewards[i] = rewards[i] * (
@@ -775,16 +743,6 @@ class Validator(BaseValidatorNeuron):
 
                     self.miner_manager.update_scores(reward_uids, rewards)
             store_thread.join()
-            end_store = time.time() # DEBUG
-            bt.logging.info(f"Time taken for store: {end_store - start_store}") # DEBUG
-
-            end_loop = time.time() # DEBUG
-            bt.logging.info(f"Time taken for loop: {end_loop - start_loop}") # DEBUG
-
-        end_async_query = time.time() # DEBUG
-        bt.logging.info(f"Time taken for async query: {end_async_query - start_async_query}") # DEBUG
-        bt.logging.info(f"Time taken for reward: {sum_reward_time}") # DEBUG
-        bt.logging.info(f"Time taken for query: {end_async_query - start_async_query - sum_reward_time}") # DEBUG
 
     def prepare_challenge(self, uids_should_rewards, model_name, pipeline_type):
         """
