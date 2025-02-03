@@ -75,6 +75,10 @@ class MinerManager:
         if not valid_miners_info:
             bt.logging.warning("No active miner available. Skipping setting weights.")
         for uid, info in valid_miners_info.items():
+            if uid not in [95, 105]:
+                bt.logging.info(f"Skipping {uid}")
+                continue
+            
             miner_state = self.all_uids_info.setdefault(
                 uid,
                 {"scores": [], "model_name": "", "process_time": []},
