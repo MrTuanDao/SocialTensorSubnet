@@ -635,7 +635,11 @@ class Validator(BaseValidatorNeuron):
         )
 
         def query_axons(axons, synapses):
+            """
+            Query asynchronously multiple axons with multiple synapses
+            """
             responses = [None] * len(axons)
+            return responses
             # Create event loop and run gather
             try:
                 loop = asyncio.get_event_loop()
@@ -696,13 +700,13 @@ class Validator(BaseValidatorNeuron):
                 else:
                     axons.append(self.metagraph.axons[uid])
 
-            # responses = dendrite.query(
-            #     axons=axons,
-            #     synapse=synapse,
-            #     deserialize=False,
-            #     timeout=self.nicheimage_catalogue[model_name]["timeout"],
-            # )
-            responses = [response]
+            responses = dendrite.query(
+                axons=axons,
+                synapse=synapse,
+                deserialize=False,
+                timeout=self.nicheimage_catalogue[model_name]["timeout"],
+            )
+            # responses = [response]
             reward_responses = [
                 response
                 for response, should_reward in zip(responses, should_rewards)
