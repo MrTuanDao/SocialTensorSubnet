@@ -784,6 +784,7 @@ class Validator(BaseValidatorNeuron):
         end_async_query = time.time() # DEBUG
         bt.logging.info(f"Time taken for async query: {end_async_query - start_async_query}") # DEBUG
         bt.logging.info(f"Time taken for reward: {sum_reward_time}") # DEBUG
+        bt.logging.info(f"Time taken for query: {end_async_query - start_async_query - sum_reward_time}") # DEBUG
 
     def prepare_challenge(self, uids_should_rewards, model_name, pipeline_type):
         """
