@@ -17,7 +17,6 @@ import yaml
 import image_generation_subnet as ig_subnet
 from generation_models.utils import random_image_size
 from image_generation_subnet.base.validator import BaseValidatorNeuron
-from image_generation_subnet.protocol import my_dendrite
 from image_generation_subnet.validator import MinerManager
 from image_generation_subnet.validator.offline_challenge import (
     get_backup_challenge_vqa, get_backup_image, get_backup_llm_prompt,
