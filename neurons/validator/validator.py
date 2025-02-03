@@ -618,6 +618,7 @@ class Validator(BaseValidatorNeuron):
         uids: list[int],
         should_rewards: list[int],
     ):
+        start_async_query = time.time() # DEBUG
         dendrite = bt.dendrite(self.wallet)
         pipeline_type = random.choice(
             self.nicheimage_catalogue[model_name]["supporting_pipelines"]
@@ -633,7 +634,6 @@ class Validator(BaseValidatorNeuron):
             bt.logging.info(f"Quering {uids}, Should reward: {should_rewards}")
             if not synapse:
                 continue
-            # base_synapse = synapse.copy()
             base_synapse = synapse.model_copy()
             if (
                 self.offline_reward
@@ -733,6 +733,9 @@ class Validator(BaseValidatorNeuron):
 
             end_loop = time.time() # DEBUG
             bt.logging.info(f"Time taken for loop: {end_loop - start_loop}") # DEBUG
+
+        end_async_query = time.time() # DEBUG
+        bt.logging.info(f"Time taken for async query: {end_async_query - start_async_query}") # DEBUG
 
     def prepare_challenge(self, uids_should_rewards, model_name, pipeline_type):
         """
