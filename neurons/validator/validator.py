@@ -665,8 +665,10 @@ class Validator(BaseValidatorNeuron):
                 axons.append(self.miner_manager.layer_one_axons[uid])
             else:
                 axons.append(self.metagraph.axons[uid])
+        start_query = time.time() # DEBUG
         _responses = query_axons(axons, synapses)
-
+        end_query = time.time() # DEBUG
+        bt.logging.info(f"Time taken for query: {end_query - start_query}") # DEBUG
 
         for synapse, uids_should_rewards, response in zip(synapses, batched_uids_should_rewards, _responses):
             start_loop = time.time() # DEBUG
@@ -690,7 +692,6 @@ class Validator(BaseValidatorNeuron):
                 else:
                     axons.append(self.metagraph.axons[uid])
 
-            start_query = time.time() # DEBUG
             # responses = dendrite.query(
             #     axons=axons,
             #     synapse=synapse,
@@ -698,8 +699,6 @@ class Validator(BaseValidatorNeuron):
             #     timeout=self.nicheimage_catalogue[model_name]["timeout"],
             # )
             responses = [response]
-            end_query = time.time() # DEBUG
-            bt.logging.info(f"Time taken for query: {end_query - start_query}") # DEBUG
             reward_responses = [
                 response
                 for response, should_reward in zip(responses, should_rewards)
