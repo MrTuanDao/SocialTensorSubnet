@@ -7,6 +7,7 @@ Find the model name and repo_id for the model you want to mine with
 | Llama3_70b | `casperhansen/llama-3-70b-instruct-awq` |
 | Llama3.3_70b | `casperhansen/llama-3.3-70b-instruct-awq` |
 | Pixtral_12B | `mistralai/Pixtral-12B-2409` |
+| DeepSeek_R1_Distill_Qwen_14B | `deepseek-ai/DeepSeek-R1-Distill-Qwen-14B` |
 
 To start mining with this model, follow these steps:
 1. Create a new Python environment for `vLLM`:
