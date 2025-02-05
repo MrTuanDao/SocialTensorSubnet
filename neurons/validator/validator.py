@@ -291,14 +291,14 @@ def initialize_nicheimage_catalogue(config):
             "reward_type": "text",
             "inference_params": {},
         },
-        "DeepSeek_R1_Distill_Qwen_14B": {
-            "supporting_pipelines": MODEL_CONFIGS["DeepSeek_R1_Distill_Qwen_14B"]["params"][
+        "DeepSeek_R1_Distill_Llama_70B": {
+            "supporting_pipelines": MODEL_CONFIGS["DeepSeek_R1_Distill_Llama_70B"]["params"][
                 "supporting_pipelines"
             ],
             "model_incentive_weight": 0.00, # TODO: Add this model
             "timeout": 128,
             "synapse_type": ig_subnet.protocol.TextGenerating,
-            "reward_url": config.reward_url.DeepSeek_R1_Distill_Qwen_14B,
+            "reward_url": config.reward_url.DeepSeek_R1_Distill_Llama_70B,
             "reward_type": "text",
             "inference_params": {},
         },
