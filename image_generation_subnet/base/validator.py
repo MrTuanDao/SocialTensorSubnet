@@ -245,6 +245,7 @@ class BaseValidatorNeuron(BaseNeuron):
                     bonus_scores[uid] = bonus_percent_dict[days_since_registration] * self.scores[uid]
             
             if len(self.miner_manager.registration_log) < len(self.scores):
+                bt.logging.info(f"Adding {len(self.scores) - len(self.miner_manager.registration_log)} new uids to registration log")
                 for uid in range(len(self.miner_manager.registration_log), len(self.scores)):
                     self.miner_manager.registration_log[uid] = {
                         "hotkey_ss58": self.metagraph.hotkeys[uid],
@@ -252,7 +253,7 @@ class BaseValidatorNeuron(BaseNeuron):
                     }
                     days_since_registration_list[uid] = 0
                     bonus_scores[uid] = bonus_percent_dict[0] * self.scores[uid]
-
+            bt.logging.info(f"Registration log: {self.miner_manager.registration_log}")
             bt.logging.info(f"Days since registration list: {days_since_registration_list}")
         except Exception as e:
             bt.logging.error(f"Error getting bonus scores: {e}")
