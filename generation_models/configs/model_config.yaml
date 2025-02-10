@@ -27,7 +27,6 @@ Gemma7b:
     supporting_pipelines:
       - "text_generation"
 
-# TODO: Delete this model if not used
 Llama3_70b:
   target: ""
   repo_id: "casperhansen/llama-3-70b-instruct-awq"
