@@ -228,8 +228,7 @@ class BaseValidatorNeuron(BaseNeuron):
                 day: (10 - day) / 100  # Generates 0.10 to 0.01 for days 0-9
                 for day in range(0, 10)
             }
-
-            bt.logging.info(f"Registration log: {self.miner_manager.registration_log}")
+            days_since_registration_list = np.zeros_like(self.scores)
             for uid in self.miner_manager.registration_log:
                 current_hotkey = self.metagraph.hotkeys[uid]
                 if current_hotkey != self.miner_manager.registration_log[uid]["hotkey_ss58"]:
@@ -241,11 +240,10 @@ class BaseValidatorNeuron(BaseNeuron):
                         self.miner_manager.registration_log[uid]["timestamp"]
                     ).replace(tzinfo=timezone.utc)
                 ).days
-                bt.logging.info(f"Days since registration for uid {uid}: {days_since_registration}")
-                
+                days_since_registration_list[uid] = days_since_registration
                 if 0 <= days_since_registration < 10:
                     bonus_scores[uid] = bonus_percent_dict[days_since_registration] * self.scores[uid]
-                    
+            bt.logging.info(f"Days since registration list: {days_since_registration_list}")
         except Exception as e:
             bt.logging.error(f"Error getting bonus scores: {e}")
         finally:
