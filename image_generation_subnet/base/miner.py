@@ -198,5 +198,4 @@ class BaseMinerNeuron(BaseNeuron):
         """Resyncs the metagraph and updates the hotkeys and moving averages based on the new metagraph."""
 
         # Sync the metagraph.
-        # self.metagraph.sync(subtensor=self.subtensor)
-        self.metagraph.sync() # DEBUG
+        self.metagraph.sync(subtensor=self.subtensor)
