@@ -253,7 +253,6 @@ class BaseValidatorNeuron(BaseNeuron):
                     }
                     days_since_registration_list[uid] = 0
                     bonus_scores[uid] = bonus_percent_dict[0] * self.scores[uid]
-            bt.logging.info(f"Registration log: {self.miner_manager.registration_log}")
             bt.logging.info(f"Days since registration list: {days_since_registration_list}")
         except Exception as e:
             bt.logging.error(f"Error getting bonus scores: {e}")
