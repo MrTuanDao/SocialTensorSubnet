@@ -21,6 +21,7 @@
 # import torch
 import asyncio
 import copy
+from queue import Full
 import threading
 from datetime import datetime, timedelta
 from traceback import print_exception
@@ -250,10 +251,157 @@ class BaseValidatorNeuron(BaseNeuron):
         try:
             # Fetch registration data
             response = requests.get(url, headers=headers, timeout=10)
-            
+            mock_response = {
+  "pagination": {
+    "current_page": 1,
+    "per_page": 200,
+    "total_items": 9,
+    "total_pages": 1,
+    "next_page": None,
+    "prev_page": None
+  },
+  "data": [
+    {
+      "block_number": 4888577,
+      "timestamp": "2025-02-09T10:27:12Z",
+      "netuid": 23,
+      "uid": 20,
+      "hotkey": {
+        "ss58": "5E9ctTuBoqYKb1P1morWqfttZ4iUg1VjxN2nWbp36AevtoKt",
+        "hex": "0x5c37f776e86d61ebd695126256d9d95c82942bfa1ea1306fb8a9cdf823e33d48"
+      },
+      "coldkey": {
+        "ss58": "5GgzBCncTseo6qJuE1g6jnVVC3NpAf9si3SUEH4KH6T1KRzC",
+        "hex": "0xcc9cb477b135b3feee4fe4890ae5f132e38e9eb61ec0ef611656cdea0f5b4e60"
+      },
+      "registration_cost": "50000000"
+    },
+    {
+      "block_number": 4886755,
+      "timestamp": "2025-02-09T04:03:48Z",
+      "netuid": 23,
+      "uid": 44,
+      "hotkey": {
+        "ss58": "5DLj9xWDmwrhAEaAX8Dgrprv4CBv61SUwrTVGMtbQsnsmeBg",
+        "hex": "0x38748798960a835e67fc23628b8d841cb260e31ce14ee0d6ce6754aecc89b13a"
+      },
+      "coldkey": {
+        "ss58": "5Eq1RDZRPLSRjbeyjaqrGpTH9UKFNzV8yzMFTGXCyontDtNF",
+        "hex": "0x7a4261833acc6be91351e135052ebf5b8db8f796bbea95fc73c7185683017507"
+      },
+      "registration_cost": "50000000"
+    },
+    {
+      "block_number": 4883454,
+      "timestamp": "2025-02-08T16:28:48Z",
+      "netuid": 23,
+      "uid": 29,
+      "hotkey": {
+        "ss58": "5CJN1Ey1zAzVmdeN2DCDDvpTt9zwNKKAckJjADX89HjYXu3a",
+        "hex": "0x0a6a9b731ac7f16760428428935a542324728eac0348b2d26dfc6fdc31a58925"
+      },
+      "coldkey": {
+        "ss58": "5G3sVeEiMoegwurqrsVuLXo1JDwem18x4knbdFC8gmDF96Wq",
+        "hex": "0xb04e218dd9599a48da833079025cfe26d8e94bef91816f1014619c919a08537f"
+      },
+      "registration_cost": "50000000"
+    },
+    {
+      "block_number": 4879864,
+      "timestamp": "2025-02-08T03:52:48Z",
+      "netuid": 23,
+      "uid": 115,
+      "hotkey": {
+        "ss58": "5GpzYZV5YC43hdKC2uqFFaxFf4SnSNgk1t44TGWoeRcyjjbo",
+        "hex": "0xd2b7e8610d439ee64000d36828caeb080d64a4995f465a2cdb2def8fda39a566"
+      },
+      "coldkey": {
+        "ss58": "5GgzBCncTseo6qJuE1g6jnVVC3NpAf9si3SUEH4KH6T1KRzC",
+        "hex": "0xcc9cb477b135b3feee4fe4890ae5f132e38e9eb61ec0ef611656cdea0f5b4e60"
+      },
+      "registration_cost": "50000000"
+    },
+    {
+      "block_number": 4878899,
+      "timestamp": "2025-02-08T00:29:36Z",
+      "netuid": 23,
+      "uid": 78,
+      "hotkey": {
+        "ss58": "5CUc4scov6jjPHciC1LgyBVMZkYH8j4SNP8AfZpMmhoBbAtA",
+        "hex": "0x123a6677caea7ac5dd0f4cfd059ed19cfbe0b4d012b7c49f47ef5f9d94a4ff2a"
+      },
+      "coldkey": {
+        "ss58": "5GgzBCncTseo6qJuE1g6jnVVC3NpAf9si3SUEH4KH6T1KRzC",
+        "hex": "0xcc9cb477b135b3feee4fe4890ae5f132e38e9eb61ec0ef611656cdea0f5b4e60"
+      },
+      "registration_cost": "50000000"
+    },
+    {
+      "block_number": 4867698,
+      "timestamp": "2025-02-06T10:15:12Z",
+      "netuid": 23,
+      "uid": 229,
+      "hotkey": {
+        "ss58": "5HNEGdZ9YAKofqBrera2sxSc9s8RYsZzXzoV6wvrbjaN4j92",
+        "hex": "0xea8ab80a326ab974addc88c3131b5ac888592d6fbaa4a834ec2c853a911e974f"
+      },
+      "coldkey": {
+        "ss58": "5GgzBCncTseo6qJuE1g6jnVVC3NpAf9si3SUEH4KH6T1KRzC",
+        "hex": "0xcc9cb477b135b3feee4fe4890ae5f132e38e9eb61ec0ef611656cdea0f5b4e60"
+      },
+      "registration_cost": "200000000"
+    },
+    {
+      "block_number": 4866781,
+      "timestamp": "2025-02-06T07:11:48Z",
+      "netuid": 23,
+      "uid": 237,
+      "hotkey": {
+        "ss58": "5GEgZgCw5omTYmCH9uRgjhdSY73j6wwkNHPTUoWCHSxZJcnG",
+        "hex": "0xb88d090c823be94b7007d96c16b5126615c89026ef16cd138d772e993700da2d"
+      },
+      "coldkey": {
+        "ss58": "5EveLu1XCSAuvteYiZM8rUCse1eVz6QydcQUHHemRB8VRkso",
+        "hex": "0x7e8ee90a341227c02154ec8d4eb1d239e31e2bebcf6739ba3e3cd7b0976bd471"
+      },
+      "registration_cost": "200000000"
+    },
+    {
+      "block_number": 4860875,
+      "timestamp": "2025-02-05T11:30:36Z",
+      "netuid": 23,
+      "uid": 161,
+      "hotkey": {
+        "ss58": "5GMzXpjU9FE1BbnijeDrpjBJ1Fgm4UtBq9GbuWGnbiA4j6jA",
+        "hex": "0xbe203d313368458f79a4d3036d632b862d86f80f3d0d593e4548f6dc64742568"
+      },
+      "coldkey": {
+        "ss58": "5EveLu1XCSAuvteYiZM8rUCse1eVz6QydcQUHHemRB8VRkso",
+        "hex": "0x7e8ee90a341227c02154ec8d4eb1d239e31e2bebcf6739ba3e3cd7b0976bd471"
+      },
+      "registration_cost": "200000000"
+    },
+    {
+      "block_number": 4853314,
+      "timestamp": "2025-02-04T10:18:24.001Z",
+      "netuid": 23,
+      "uid": 56,
+      "hotkey": {
+        "ss58": "5EZzRYGm4m7gf4cnG56oGatNYw28wKcme6wrzqpp7xqMKteD",
+        "hex": "0x6ece5a2e4801d73618d729e026509e1ef924f9d4fcb751c024535a8172e4d53a"
+      },
+      "coldkey": {
+        "ss58": "5GgzBCncTseo6qJuE1g6jnVVC3NpAf9si3SUEH4KH6T1KRzC",
+        "hex": "0xcc9cb477b135b3feee4fe4890ae5f132e38e9eb61ec0ef611656cdea0f5b4e60"
+      },
+      "registration_cost": "200000000"
+    }
+  ]
+}
             if response.status_code == 200:
-                bt.logging.info(f"Response: {response.json()}") # DEBUG
-                for item in response.json()['data']:
+                response = response.json()
+                response = mock_response
+                for item in response['data']:
                     uid = item['uid']
                     days_since_registration = (
                         datetime.now() - datetime.fromtimestamp(item['timestamp'])
