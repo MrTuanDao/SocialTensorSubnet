@@ -860,9 +860,11 @@ class Validator(BaseValidatorNeuron):
             unassigned_emission = 1 - assigned_emission
             weights = weights + unassigned_emission
             bt.logging.info(f"Unassigned emission: {unassigned_emission}")
+            bt.logging.info(f"Max weight: {np.max(weights)}")
         # Scale max weight to 1 if max weight is greater than 1
         if np.max(weights) > 1:
             weights = weights / np.max(weights)
+            bt.logging.info(f"Scaled weights: {weights}")
 
         # Check if rewards contains NaN values.
         if np.isnan(weights).any():
