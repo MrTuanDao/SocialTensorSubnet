@@ -251,66 +251,8 @@ class BaseValidatorNeuron(BaseNeuron):
         try:
             # Fetch registration data
             response = requests.get(url, headers=headers, timeout=10)
-            mock_response = {
-  "pagination": {
-    "current_page": 1,
-    "per_page": 200,
-    "total_items": 9,
-    "total_pages": 1,
-    "next_page": None,
-    "prev_page": None
-  },
-  "data": [
-    {
-      "block_number": 4888577,
-      "timestamp": "2025-02-09T10:27:12Z",
-      "netuid": 23,
-      "uid": 20,
-      "hotkey": {
-        "ss58": "5E9ctTuBoqYKb1P1morWqfttZ4iUg1VjxN2nWbp36AevtoKt",
-        "hex": "0x5c37f776e86d61ebd695126256d9d95c82942bfa1ea1306fb8a9cdf823e33d48"
-      },
-      "coldkey": {
-        "ss58": "5GgzBCncTseo6qJuE1g6jnVVC3NpAf9si3SUEH4KH6T1KRzC",
-        "hex": "0xcc9cb477b135b3feee4fe4890ae5f132e38e9eb61ec0ef611656cdea0f5b4e60"
-      },
-      "registration_cost": "50000000"
-    },
-    {
-      "block_number": 4886755,
-      "timestamp": "2025-02-09T04:03:48Z",
-      "netuid": 23,
-      "uid": 44,
-      "hotkey": {
-        "ss58": "5DLj9xWDmwrhAEaAX8Dgrprv4CBv61SUwrTVGMtbQsnsmeBg",
-        "hex": "0x38748798960a835e67fc23628b8d841cb260e31ce14ee0d6ce6754aecc89b13a"
-      },
-      "coldkey": {
-        "ss58": "5Eq1RDZRPLSRjbeyjaqrGpTH9UKFNzV8yzMFTGXCyontDtNF",
-        "hex": "0x7a4261833acc6be91351e135052ebf5b8db8f796bbea95fc73c7185683017507"
-      },
-      "registration_cost": "50000000"
-    },
-    {
-      "block_number": 4883454,
-      "timestamp": "2025-02-08T16:28:48Z",
-      "netuid": 23,
-      "uid": 29,
-      "hotkey": {
-        "ss58": "5CJN1Ey1zAzVmdeN2DCDDvpTt9zwNKKAckJjADX89HjYXu3a",
-        "hex": "0x0a6a9b731ac7f16760428428935a542324728eac0348b2d26dfc6fdc31a58925"
-      },
-      "coldkey": {
-        "ss58": "5G3sVeEiMoegwurqrsVuLXo1JDwem18x4knbdFC8gmDF96Wq",
-        "hex": "0xb04e218dd9599a48da833079025cfe26d8e94bef91816f1014619c919a08537f"
-      },
-      "registration_cost": "50000000"
-    },
-  ]
-}
             if response.status_code == 200:
                 response = response.json()
-                response = mock_response
                 for item in response['data']:
                     uid = item['uid']
                     registration_time = datetime.fromisoformat(item['timestamp'].replace('Z', '+00:00'))
