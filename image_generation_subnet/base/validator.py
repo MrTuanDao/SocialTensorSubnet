@@ -18,18 +18,19 @@
 # DEALINGS IN THE SOFTWARE.
 
 
-import copy
 # import torch
 import asyncio
+import copy
 import threading
+from datetime import datetime, timedelta
+from traceback import print_exception
+from typing import List
+
 import bittensor as bt
 import numpy as np
-
-from typing import List
-from traceback import print_exception
+import requests
 
 from image_generation_subnet.base.neuron import BaseNeuron
-from datetime import datetime
 
 
 class BaseValidatorNeuron(BaseNeuron):
@@ -209,10 +210,72 @@ class BaseValidatorNeuron(BaseNeuron):
             self.is_running = False
             bt.logging.debug("Stopped")
 
+    def get_bonus_scores(self):
+        """
+        Returns bonus scores for newly registered UIDs based on their registration date.
+        Newer registrations get higher bonus percentages, scaling from 10% for 1-day-old
+        registrations down to 1% for 10-day-old registrations.
+        
+        Returns:
+            np.ndarray: Array of bonus scores matching the shape of self.scores
+        """
+        # Initialize bonus scores array
+        mean_scores = np.mean(self.scores)
+        bonus_scores = np.zeros_like(self.scores)
+        
+        # Define bonus percentages for each day since registration
+        bonus_percent_dict = {
+            day: (11 - day) / 100  # Generates 0.10 to 0.01 for days 1-10
+            for day in range(1, 11)
+        }
+
+        # Calculate timestamp for 10 days ago
+        days_to_check = 10
+        timestamp_start = int((datetime.now() - timedelta(days=days_to_check)).timestamp())
+        
+        # Construct API URL
+        url = (
+            "https://api.taostats.io/api/subnet/neuron/registration/v1"
+            f"?netuid={self.config.netuid}"
+            f"&timestamp_start={timestamp_start}"
+            f"&limit=1000"  # Maximum UIDs to check
+        )
+
+        # Set up request headers
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"{self.config.tao_api_key}"
+        }
+
+        try:
+            # Fetch registration data
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                for item in response.json()['data']:
+                    uid = item['uid']
+                    days_since_registration = (
+                        datetime.now() - datetime.fromtimestamp(item['timestamp'])
+                    ).days
+                    
+                    # Apply bonus if registration is within the bonus period
+                    if 1 <= days_since_registration <= days_to_check:
+                        bonus_scores[uid] = bonus_percent_dict[days_since_registration] * mean_scores
+                        
+        except Exception as e:
+            bt.logging.error(f"Error getting bonus scores: {e}")
+            
+        return bonus_scores
+
     def set_weights(self):
         """
         Sets the validator weights to the metagraph hotkeys based on the scores it has received from the miners. The weights determine the trust and incentive level the validator assigns to miner nodes on the network.
         """
+
+        # Add bonus scores to new registered uids
+        bonus_scores = self.get_bonus_scores()
+        bt.logging.info(f"Bonus scores: {bonus_scores}")
+        self.scores = self.scores + bonus_scores
 
         # Check if self.scores contains any NaN values and log a warning if it does.
         if np.isnan(self.scores).any():
