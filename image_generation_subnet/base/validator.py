@@ -276,7 +276,6 @@ class BaseValidatorNeuron(BaseNeuron):
         """
 
         # Add bonus scores to new registered uids
-        self.scores = np.random.rand(self.metagraph.n) # DEBUG
         bonus_scores = self.get_bonus_scores()
         bt.logging.info(f"Bonus scores: {bonus_scores}")
         self.scores = self.scores + bonus_scores
