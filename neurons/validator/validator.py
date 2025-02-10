@@ -810,7 +810,7 @@ class Validator(BaseValidatorNeuron):
                 bt.logging.debug(f"Normalized {model_name} weights\n{model_specific_weights}")
             # Smoothing update incentive
             temp_incentive_weight = {}
-            if datetime.utcnow() < datetime(2025, 2, 11, 16, 0, 0):
+            if datetime.utcnow() < datetime(2025, 2, 5, 16, 0, 0):
                 temp_incentive_weight = {
                     "GoJourney": 0.04,
                     "JuggernautXL": 0.07,
