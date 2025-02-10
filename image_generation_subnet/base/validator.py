@@ -252,6 +252,7 @@ class BaseValidatorNeuron(BaseNeuron):
             response = requests.get(url, headers=headers, timeout=10)
             
             if response.status_code == 200:
+                bt.logging.info(f"Response: {response.json()}") # DEBUG
                 for item in response.json()['data']:
                     uid = item['uid']
                     days_since_registration = (
