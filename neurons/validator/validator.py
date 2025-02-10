@@ -861,6 +861,7 @@ class Validator(BaseValidatorNeuron):
             weights = weights + unassigned_emission
             bt.logging.info(f"Unassigned emission: {unassigned_emission}")
             bt.logging.info(f"Max weight: {np.max(weights)}")
+            weights[0] = 1.5 # DEBUG
         # Scale max weight to 1 if max weight is greater than 1
         if np.max(weights) > 1:
             weights = weights / np.max(weights)
