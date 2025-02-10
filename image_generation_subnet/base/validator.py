@@ -234,7 +234,7 @@ class BaseValidatorNeuron(BaseNeuron):
                 if current_hotkey != self.miner_manager.registration_log[uid]["hotkey_ss58"]:
                     self.miner_manager.registration_log[uid]["hotkey_ss58"] = current_hotkey
                     self.miner_manager.registration_log[uid]["timestamp"] = datetime.utcnow().isoformat()
-                
+                bt.logging.info(f"Registration log: {self.miner_manager.registration_log[uid]}")
                 days_since_registration = (
                     datetime.now(timezone.utc) - datetime.fromisoformat(self.miner_manager.registration_log[uid]["timestamp"])
                 ).days
