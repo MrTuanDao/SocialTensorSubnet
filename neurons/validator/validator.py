@@ -860,8 +860,6 @@ class Validator(BaseValidatorNeuron):
             unassigned_emission = 1 - assigned_emission
             weights = weights + unassigned_emission
             bt.logging.info(f"Unassigned emission: {unassigned_emission}")
-            weights[0] = 1.5 # DEBUG
-            bt.logging.info(f"Weights: {weights}")
 
         # Check if rewards contains NaN values.
         if np.isnan(weights).any():
