@@ -23,7 +23,7 @@ import asyncio
 import copy
 from queue import Full
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from traceback import print_exception
 from typing import List
 
@@ -232,7 +232,7 @@ class BaseValidatorNeuron(BaseNeuron):
 
         # Calculate timestamp for 10 days ago
         days_to_check = 10
-        timestamp_start = int((datetime.now() - timedelta(days=days_to_check)).timestamp())
+        timestamp_start = int((datetime.now(timezone.utc) - timedelta(days=days_to_check)).timestamp())
         
         # Construct API URL
         url = (
@@ -403,8 +403,10 @@ class BaseValidatorNeuron(BaseNeuron):
                 response = mock_response
                 for item in response['data']:
                     uid = item['uid']
+                    registration_time = datetime.fromisoformat(item['timestamp'].replace('Z', '+00:00'))
+                    current_time = datetime.now(timezone.utc)  # Make current time timezone-aware
                     days_since_registration = (
-                        datetime.now() - datetime.fromtimestamp(item['timestamp'])
+                        current_time - registration_time
                     ).days
                     
                     # Apply bonus if registration is within the bonus period
