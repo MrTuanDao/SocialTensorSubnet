@@ -831,7 +831,7 @@ class Validator(BaseValidatorNeuron):
                     "OpenTraditionalArtComic": 0.02,
                     "Pixtral_12b": 0.04,
                     # New models
-                    "DeepSeek_R1_Distill_Llama_70B": 0.00,
+                    "DeepSeek_R1_Distill_Llama_70B": 0.05,
                 }
 
             # TODO: after we updated weights, we need to update the model_incentive_weight in the miner_manager
