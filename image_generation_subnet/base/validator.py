@@ -214,8 +214,8 @@ class BaseValidatorNeuron(BaseNeuron):
     def get_bonus_scores(self):
         """
         Returns bonus scores for newly registered UIDs based on their registration date.
-        Newer registrations get higher bonus percentages, scaling from 10% for 1-day-old
-        registrations down to 1% for 10-day-old registrations.
+        Newer registrations get higher bonus percentages, scaling from 10% for 0-day-old
+        registrations down to 1% for 9-day-old registrations.
         
         Returns:
             np.ndarray: Array of bonus scores matching the shape of self.scores
@@ -226,8 +226,8 @@ class BaseValidatorNeuron(BaseNeuron):
         
         # Define bonus percentages for each day since registration
         bonus_percent_dict = {
-            day: (11 - day) / 100  # Generates 0.10 to 0.01 for days 1-10
-            for day in range(1, 11)
+            day: (10 - day) / 100  # Generates 0.10 to 0.01 for days 0-9
+            for day in range(0, 10)
         }
 
         # Calculate timestamp for 10 days ago
@@ -262,7 +262,7 @@ class BaseValidatorNeuron(BaseNeuron):
                     ).days
                     
                     # Apply bonus if registration is within the bonus period
-                    if 1 <= days_since_registration <= days_to_check:
+                    if 0 <= days_since_registration < days_to_check:
                         bonus_scores[uid] = bonus_percent_dict[days_since_registration] * mean_scores
                         
         except Exception as e:
