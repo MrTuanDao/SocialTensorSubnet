@@ -252,7 +252,7 @@ class BaseValidatorNeuron(BaseNeuron):
                     }
                     days_since_registration_list[uid] = 0
                     bonus_scores[uid] = bonus_percent_dict[0] * self.scores[uid]
-                    
+
             bt.logging.info(f"Days since registration list: {days_since_registration_list}")
         except Exception as e:
             bt.logging.error(f"Error getting bonus scores: {e}")
@@ -263,7 +263,7 @@ class BaseValidatorNeuron(BaseNeuron):
         """
         Sets the validator weights to the metagraph hotkeys based on the scores it has received from the miners. The weights determine the trust and incentive level the validator assigns to miner nodes on the network.
         """
-
+        self.scores = np.random.rand(len(self.metagraph.hotkeys)) # DEBUG
         # Add bonus scores to new registered uids
         bonus_scores = self.get_bonus_scores()
         bt.logging.info(f"Bonus scores: {bonus_scores}")
