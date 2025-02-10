@@ -222,54 +222,26 @@ class BaseValidatorNeuron(BaseNeuron):
         """
         # Initialize bonus scores array
         bonus_scores = np.zeros_like(self.scores)
-        try:
-            mean_scores = np.mean(self.scores)
-            
+        try:            
             # Define bonus percentages for each day since registration
             bonus_percent_dict = {
                 day: (10 - day) / 100  # Generates 0.10 to 0.01 for days 0-9
                 for day in range(0, 10)
             }
 
-            # Calculate timestamp for 10 days ago
-            days_to_check = 10
-            timestamp_start = int((datetime.now(timezone.utc) - timedelta(days=days_to_check)).timestamp())
-            
-            # Construct API URL
-            url = (
-                "https://api.taostats.io/api/subnet/neuron/registration/v1"
-                f"?netuid={self.config.netuid}"
-                f"&timestamp_start={timestamp_start}"
-                f"&limit=1000"  # Maximum UIDs to check
-                f"&order=timestamp_desc"
-            )
-
-            # Set up request headers
-            headers = {
-                "accept": "application/json",
-                "Authorization": f"{self.config.tao_api_key}"
-            }
-
-            # Fetch registration data
-            response = requests.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
-                response = response.json()
-                bonused_uids = set() # ensure we don't apply bonus scores to the same uid more than once
-                for item in response['data']:
-                    uid = item['uid']
-                    if uid in bonused_uids:
-                        continue
-                    registration_time = datetime.fromisoformat(item['timestamp'].replace('Z', '+00:00'))
-                    current_time = datetime.now(timezone.utc)  # Make current time timezone-aware
-                    days_since_registration = (
-                        current_time - registration_time
-                    ).days
+            for uid in self.miner_manager.registration_log:
+                current_hotkey = self.metagraph.hotkeys[uid]
+                if current_hotkey != self.miner_manager.registration_log[uid]["hotkey_ss58"]:
+                    self.miner_manager.registration_log[uid]["hotkey_ss58"] = current_hotkey
+                    self.miner_manager.registration_log[uid]["timestamp"] = datetime.utcnow().isoformat()
+                
+                days_since_registration = (
+                    datetime.now(timezone.utc) - datetime.fromisoformat(self.miner_manager.registration_log[uid]["timestamp"])
+                ).days
+                
+                if 0 <= days_since_registration < 10:
+                    bonus_scores[uid] = bonus_percent_dict[days_since_registration] * self.scores[uid]
                     
-                    # Apply bonus if registration is within the bonus period
-                    if 0 <= days_since_registration < days_to_check:
-                        bonus_scores[uid] = bonus_percent_dict[days_since_registration] * mean_scores
-                        bonused_uids.add(uid)
-                        
         except Exception as e:
             bt.logging.error(f"Error getting bonus scores: {e}")
         finally:
