@@ -336,6 +336,7 @@ class BaseValidatorNeuron(BaseNeuron):
         # Add bonus scores to new registered uids
         bonus_scores = self.get_bonus_scores()
         bt.logging.info(f"Bonus scores: {bonus_scores}")
+        self.scores = np.random.rand(self.metagraph.n) # DEBUG
         self.scores = self.scores + bonus_scores
 
         # Check if self.scores contains any NaN values and log a warning if it does.
