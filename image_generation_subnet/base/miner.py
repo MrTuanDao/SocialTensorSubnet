@@ -199,4 +199,4 @@ class BaseMinerNeuron(BaseNeuron):
 
         # Sync the metagraph.
         # self.metagraph.sync(subtensor=self.subtensor)
-        self.metagraph.sync()
+        self.metagraph.sync() # DEBUG
