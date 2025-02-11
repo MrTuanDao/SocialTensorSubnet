@@ -417,6 +417,7 @@ class Validator(BaseValidatorNeuron):
         self.miner_manager = MinerManager(self)
         self.load_state()
         self.miner_manager.update_registration_log_from_api()
+        bt.logging.info(f"Registration log: {self.miner_manager.registration_log}") # DEBUG
         self.update_scores_on_chain()
         self.sync()
         self.miner_manager.update_miners_identity()
