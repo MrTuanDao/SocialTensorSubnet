@@ -250,7 +250,10 @@ class BaseValidatorNeuron(BaseNeuron):
                 
             except Exception as e:
                 bt.logging.error(f"Error calculating registration days for uid {uid}: {e}")
-                days_since_registration_list[uid] = float('inf')  # Ensures no bonus
+                if uid < len(days_since_registration_list):
+                    days_since_registration_list[uid] = float('inf')  # Ensures no bonus for this uid
+                else:
+                    bt.logging.error(f"Days since registration list is not large enough for uid {uid}")
                 
         return days_since_registration_list
 
