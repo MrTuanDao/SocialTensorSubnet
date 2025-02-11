@@ -239,7 +239,7 @@ class BaseValidatorNeuron(BaseNeuron):
             np.ndarray: Array containing days since registration for each UID
         """
         days_since_registration_list = np.zeros_like(self.scores)
-        
+        bt.logging.info(f"Registration log: {self.miner_manager.registration_log}")
         for uid in [int(uid) for uid in self.metagraph.uids]:
             try:
                 current_hotkey = self.metagraph.hotkeys[uid]
