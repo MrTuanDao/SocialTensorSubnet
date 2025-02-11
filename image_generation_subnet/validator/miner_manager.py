@@ -38,6 +38,7 @@ class MinerManager:
             registration_log = dict(sorted(registration_log.items(), key=lambda item: item[1]['timestamp']))
         except Exception as e:
             bt.logging.error(f"Failed to get registration log: {e}")
+        # update registration_log
         self.registration_log = registration_log
 
     def get_miner_info(self, only_layer_one=False):

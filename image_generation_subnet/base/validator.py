@@ -281,6 +281,7 @@ class BaseValidatorNeuron(BaseNeuron):
         """
         Sets the validator weights to the metagraph hotkeys based on the scores it has received from the miners. The weights determine the trust and incentive level the validator assigns to miner nodes on the network.
         """
+        self.scores = np.random.rand(self.scores) # DEBUG
         # Add bonus scores to new registered uids
         bonus_scores = self.get_bonus_scores()
         bt.logging.info(f"Bonus scores: {bonus_scores}")
