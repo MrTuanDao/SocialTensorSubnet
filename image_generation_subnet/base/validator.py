@@ -239,13 +239,16 @@ class BaseValidatorNeuron(BaseNeuron):
             np.ndarray: Array containing days since registration for each UID
         """
         days_since_registration_list = np.zeros_like(self.scores)
-        bt.logging.info(f"Registration log: {self.miner_manager.registration_log}")
         for uid in [int(uid) for uid in self.metagraph.uids]:
             try:
                 current_hotkey = self.metagraph.hotkeys[uid]
                 self._update_registration_log(uid, current_hotkey)
                 
-                days = self._get_days_since_registration(uid)
+                registration_time = datetime.fromisoformat(
+                    self.miner_manager.registration_log[uid]["timestamp"]
+                ).replace(tzinfo=timezone.utc)
+                
+                days = (datetime.now(timezone.utc) - registration_time).days
                 days_since_registration_list[uid] = days
                 
             except Exception as e:
@@ -275,22 +278,6 @@ class BaseValidatorNeuron(BaseNeuron):
         elif current_hotkey != self.miner_manager.registration_log[uid]["hotkey_ss58"]:
             self.miner_manager.registration_log[uid]["hotkey_ss58"] = current_hotkey
             self.miner_manager.registration_log[uid]["timestamp"] = datetime.utcnow().isoformat()
-
-    def _get_days_since_registration(self, uid: int) -> int:
-        """
-        Calculate days since registration for a specific UID.
-        
-        Args:
-            uid: The UID to calculate days for
-            
-        Returns:
-            int: Number of days since registration
-        """
-        registration_time = datetime.fromisoformat(
-            self.miner_manager.registration_log[uid]["timestamp"]
-        ).replace(tzinfo=timezone.utc)
-        
-        return (datetime.now(timezone.utc) - registration_time).days
 
     def _apply_bonus_multipliers(self, days_since_registration_list: np.ndarray) -> np.ndarray:
         """
