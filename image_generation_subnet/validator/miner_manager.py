@@ -34,8 +34,6 @@ class MinerManager:
             registration_log = requests.get(registration_log_url).json()
             # convert keys to int
             registration_log = {int(k): v for k, v in registration_log.items()}
-            # sort by value
-            registration_log = dict(sorted(registration_log.items(), key=lambda item: item[1]['timestamp']))
         except Exception as e:
             bt.logging.error(f"Failed to get registration log: {e}")
         # update registration_log
