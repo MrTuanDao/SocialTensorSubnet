@@ -84,7 +84,7 @@ class BaseNeuron(ABC):
         bt.logging.info(f"Subtensor: {self.subtensor}")
 
         # The metagraph holds the state of the network, letting us know about other validators and miners.
-        self.metagraph = self.subtensor.metagraph(self.config.netuid)
+        self.metagraph = bt.metagraph(self.config.netuid, self.subtensor)
         bt.logging.info(f"Metagraph: {self.metagraph}")
 
         # Check if the miner is registered on the Bittensor network before proceeding further.
