@@ -41,7 +41,7 @@ def define_allowed_ips(self, url, netuid, min_stake):
             state = {}
             all_allowed_ips = []
             subtensor = bt.subtensor(url)
-            metagraph = subtensor.metagraph(netuid)
+            metagraph = bt.metagraph(netuid, subtensor)
             for uid in range(len(metagraph.total_stake)):
                 if metagraph.total_stake[uid] > min_stake:
                     all_allowed_ips.append(metagraph.axons[uid].ip)
