@@ -298,16 +298,18 @@ class BaseValidatorNeuron(BaseNeuron):
         miner_raw_weight_sum = np.sum(np.abs(miner_raw_weights), axis=0, keepdims=True)
         if not miner_raw_weight_sum == 0:
             miner_raw_weights = miner_raw_weights / miner_raw_weight_sum
+        bt.logging.info(f"Miner raw weights: {miner_raw_weights}")
 
         # Calculate weights base on alpha stake
         alpha_raw_weights = np.nan_to_num(self.metagraph.alpha_stake, nan=0)
         alpha_raw_weight_sum = np.sum(np.abs(alpha_raw_weights), axis=0, keepdims=True)
         if not alpha_raw_weight_sum == 0:
             alpha_raw_weights = alpha_raw_weights / alpha_raw_weight_sum
+        bt.logging.info(f"Alpha raw weights: {alpha_raw_weights}")  
 
         # Calculate final raw weights
         raw_weights = 0.1 * miner_raw_weights + 0.9 * alpha_raw_weights
-
+        bt.logging.info(f"Raw weights: {raw_weights}")
         bt.logging.trace("Raw weights:", raw_weights)
         bt.logging.trace("Top 10 values:", np.sort(raw_weights))
         bt.logging.trace("Top 10 uids:", np.argsort(raw_weights))
