@@ -315,7 +315,6 @@ class BaseValidatorNeuron(BaseNeuron):
             alpha_raw_weights
         )
         bt.logging.info(f"Raw weights: {raw_weights}")
-        bt.logging.trace("Raw weights:", raw_weights)
         bt.logging.trace("Top 10 values:", np.sort(raw_weights))
         bt.logging.trace("Top 10 uids:", np.argsort(raw_weights))
 
