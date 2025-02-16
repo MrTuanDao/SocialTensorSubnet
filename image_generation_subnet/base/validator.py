@@ -32,6 +32,7 @@ import numpy as np
 import requests
 
 from image_generation_subnet.base.neuron import BaseNeuron
+from config.weight_transition_config import WeightCalculationService
 
 
 class BaseValidatorNeuron(BaseNeuron):
@@ -41,6 +42,7 @@ class BaseValidatorNeuron(BaseNeuron):
 
     def __init__(self, config=None):
         super().__init__(config=config)
+        self.weight_service = WeightCalculationService()
 
         # Save a copy of the hotkeys to local memory.
         self.hotkeys = copy.deepcopy(self.metagraph.hotkeys)
@@ -307,8 +309,11 @@ class BaseValidatorNeuron(BaseNeuron):
             alpha_raw_weights = alpha_raw_weights / alpha_raw_weight_sum
         bt.logging.info(f"Alpha raw weights: {alpha_raw_weights}")  
 
-        # Calculate final raw weights
-        raw_weights = 0.1 * miner_raw_weights + 0.9 * alpha_raw_weights
+        # Calculate raw weights using the service
+        raw_weights = self.weight_service.calculate_transition_weights(
+            miner_raw_weights,
+            alpha_raw_weights
+        )
         bt.logging.info(f"Raw weights: {raw_weights}")
         bt.logging.trace("Raw weights:", raw_weights)
         bt.logging.trace("Top 10 values:", np.sort(raw_weights))
