@@ -941,8 +941,9 @@ class Validator(BaseValidatorNeuron):
             for day in range(10)
         }
         
+        not_bonus_uids = self.miner_manager.get_miner_uids("Recycle") + self.miner_manager.get_miner_uids("Validator")
         for uid, days in enumerate(days_since_registration_list):
-            if 0 <= days < 10:
+            if 0 <= days < 10 and uid not in not_bonus_uids:
                 bonus_scores[uid] = bonus_percent_dict[int(days)] * self.scores[uid]
                 
         return bonus_scores
@@ -958,6 +959,11 @@ class Validator(BaseValidatorNeuron):
             bt.logging.warning(
                 "Scores contain NaN values. This may be due to a lack of responses from miners, or a bug in your reward functions."
             )
+        
+        # Add bonus scores to new registered uids
+        bonus_scores = self.get_bonus_scores()
+        bt.logging.info(f"Bonus scores: {bonus_scores}")
+        self.scores = self.scores + bonus_scores       
 
         # Calculate the average reward for each uid across non-zero values.
         # Replace any NaN values with 0.
