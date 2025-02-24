@@ -108,10 +108,6 @@ class MinerManager:
             )
             miner_state["registration_time"] = days_since_registration_dict.get(uid, None)
             model_name = info.get("model_name", "Recycle")
-            if model_name == "Recycle":
-                miner_state["scores"] = [0.9 ** days_since_registration_dict.get(uid, 1000)] * 10
-            if self.metagraph.stake[uid] >= 10000:
-                model_name = "Validator"
             raw_volume = info.get("total_volume", 40)  # Default to 40 if not specified
             min_allowed_volume = 40
             max_allowed_volume = 256
@@ -136,6 +132,17 @@ class MinerManager:
             miner_state["model_name"] = model_name
             miner_state["scores"] = []
             miner_state["process_time"] = []
+        
+        for uid in [int(uid) for uid in self.validator.metagraph.uids]:
+            miner_state = self.all_uids_info.setdefault(
+                uid,
+                {"scores": [], "model_name": "", "process_time": []},
+            )
+            miner_state["registration_time"] = days_since_registration_dict.get(uid, None)
+            if model_name == "Recycle":
+                miner_state["scores"] = [0.9 ** days_since_registration_dict.get(uid, 1000)] * 10
+            if self.metagraph.stake[uid] >= 10000:
+                model_name = "Validator"
 
         bt.logging.success("Updated miner identity")
         model_distribution = {}
@@ -192,6 +199,7 @@ class MinerManager:
             alpha_stake = self.metagraph.alpha_stake
             alpha_stake[validator_uids] = 0 # Set validator's alpha stake to 0, only keep miner's alpha stake
             model_specific_weights = alpha_stake
+
         if normalize:
             array_sum = np.sum(model_specific_weights)
             # Normalizing the tensor
