@@ -67,7 +67,6 @@ class MinerManager:
         responses = {
             uid: response.response_dict for uid, response in zip(uids, responses)
         }
-        bt.logging.info(f"Responses: {responses}") # DEBUG
         if only_layer_one:
             bt.logging.debug(f"Some layer one miners: {list(responses.items())[:5]}")
         responses = {k: v for k, v in responses.items() if v}
@@ -102,7 +101,6 @@ class MinerManager:
 
         if not valid_miners_info:
             bt.logging.warning("No active miner available. Skipping setting weights.")
-        bt.logging.info(f"Valid miners info: {valid_miners_info}") # DEBUG
         for uid, info in valid_miners_info.items():
             miner_state = self.all_uids_info.setdefault(
                 uid,
@@ -136,7 +134,8 @@ class MinerManager:
             miner_state["process_time"] = []
         
         # Update indentity of Recycle and Validator
-        for uid in [int(uid) for uid in self.validator.metagraph.uids]:
+        for uid in [int(uid) for uid in self.metagraph.uids]:
+            bt.logging.info(f"Updating identity for {uid}") # DEBUG
             miner_state = self.all_uids_info.setdefault(
                 uid,
                 {"scores": [], "model_name": "", "process_time": []},
