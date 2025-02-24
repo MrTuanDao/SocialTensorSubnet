@@ -58,7 +58,7 @@ class QueryQueue:
         for q in self.proxy_queue.values():
             q.queue.clear()
         for uid, info in all_uids_info.items():
-            if not info["model_name"]:
+            if info["model_name"] == "Validator" or info["model_name"] == "Recycle":
                 continue
             synthentic_model_queue = self.synthentic_queue.setdefault(
                 info["model_name"], queue.Queue()
@@ -189,8 +189,23 @@ def initialize_challenge_urls(config):
 
 def initialize_nicheimage_catalogue(config):
     nicheimage_catalogue = {
+        # Recycling and Stake-based
+        "Recycle": {
+            "model_incentive_weight": 0.47,
+            "supporting_pipelines": [None],
+            "reward_url": None,
+            "reward_type": None,
+        },
+        "Stake_based": {
+            "model_incentive_weight": 0.01,
+            "supporting_pipelines": [None],
+            "reward_url": None,
+            "reward_type": None,
+        },
+
+        # Specific models
         "GoJourney": {
-            "model_incentive_weight": 0.05,
+            "model_incentive_weight": 0.04,
             "supporting_pipelines": MODEL_CONFIGS["GoJourney"]["params"][
                 "supporting_pipelines"
             ],
@@ -209,13 +224,13 @@ def initialize_nicheimage_catalogue(config):
             "timeout": 180,
             "inference_params": {},
             "synapse_type": ig_subnet.protocol.ImageGenerating,
-            "model_incentive_weight": 0.07,
+            "model_incentive_weight": 0.05,
         },
         "FluxSchnell": {
             "supporting_pipelines": MODEL_CONFIGS["FluxSchnell"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.20,
+            "model_incentive_weight": 0.10,
             "reward_url": config.reward_url.FluxSchnell,
             "reward_type": "image",
             "inference_params": {
@@ -231,7 +246,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["Kolors"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.10,
+            "model_incentive_weight": 0.05,
             "reward_url": config.reward_url.Kolors,
             "reward_type": "image",
             "inference_params": {
@@ -245,7 +260,7 @@ def initialize_nicheimage_catalogue(config):
         },
         "OpenGeneral": {
             "supporting_pipelines": ["open_txt2img"],
-            "model_incentive_weight": 0.10,
+            "model_incentive_weight": 0.07,
             "reward_url": config.reward_url.OpenCategory,
             "reward_type": "open_category",
             "inference_params": {},
@@ -254,7 +269,7 @@ def initialize_nicheimage_catalogue(config):
         },
         "OpenDigitalArt": {
             "supporting_pipelines": ["open_txt2img"],
-            "model_incentive_weight": 0.10,
+            "model_incentive_weight": 0.07,
             "reward_url": config.reward_url.OpenCategory,
             "reward_type": "open_category",
             "inference_params": {},
@@ -263,7 +278,7 @@ def initialize_nicheimage_catalogue(config):
         },
         "OpenDigitalArtMinimalist": {
             "supporting_pipelines": ["open_txt2img"],
-            "model_incentive_weight": 0.10,
+            "model_incentive_weight": 0.00,
             "reward_url": config.reward_url.OpenCategory,
             "reward_type": "open_category",
             "inference_params": {},
@@ -272,7 +287,7 @@ def initialize_nicheimage_catalogue(config):
         },
         "OpenTraditionalArtSketch": {
             "supporting_pipelines": ["open_txt2img"],
-            "model_incentive_weight": 0.10,
+            "model_incentive_weight": 0.07,
             "reward_url": config.reward_url.OpenCategory,
             "reward_type": "open_category",
             "inference_params": {},
@@ -281,7 +296,7 @@ def initialize_nicheimage_catalogue(config):
         },
         "Pixtral_12b": {
             "supporting_pipelines": ["visual_question_answering"],
-            "model_incentive_weight": 0.05,
+            "model_incentive_weight": 0.00,
             "reward_url": config.reward_url.Pixtral_12b,
             "reward_type": "text",
             "inference_params": {
@@ -297,7 +312,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["DeepSeek_R1_Distill_Llama_70B"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.10,
+            "model_incentive_weight": 0.07,
             "timeout": 128,
             "synapse_type": ig_subnet.protocol.TextGenerating,
             "reward_url": config.reward_url.DeepSeek_R1_Distill_Llama_70B,
@@ -305,11 +320,6 @@ def initialize_nicheimage_catalogue(config):
             "inference_params": {},
         }
     }
-
-    sum_incentive = 0
-    for k, v in nicheimage_catalogue.items():
-        sum_incentive += v["model_incentive_weight"]
-    bt.logging.info(f"Sum incentive in code: {sum_incentive}")
 
     return nicheimage_catalogue
 
@@ -356,6 +366,7 @@ class Validator(BaseValidatorNeuron):
                     + traceback.format_exc()
                 )
 
+    # MARK: Forward
     def forward(self):
         """
         Validator synthetic forward pass. Consists of:
@@ -617,7 +628,7 @@ class Validator(BaseValidatorNeuron):
             if self.nicheimage_catalogue[model_name]["reward_type"] == "open_category":
                 width, height = random_image_size()
                 synapse.pipeline_params.update({"width": width, "height": height})
-            synapse.seed = random.randint(0, 1e9)
+            synapse.seed = random.randint(0, int(1e9))
         for challenge_url, backup_func in zip(
             self.challenge_urls[pipeline_type]["main"],
             self.challenge_urls[pipeline_type]["backup"],
@@ -640,7 +651,7 @@ class Validator(BaseValidatorNeuron):
                             synapses[i] = random.choice(self.rewarded_synapses[model_name]).model_copy(deep=True)
                         else: # 10% chance to use existing synapse with new seed
                             synapse = random.choice(self.rewarded_synapses[model_name]).model_copy(deep=True)
-                            synapse.seed = random.randint(0, 1e9)
+                            synapse.seed = random.randint(0, int(1e9))
                             synapses[i] = synapse
                     else:
                         # else: 10% chance to use new synapse (already created)
@@ -696,6 +707,45 @@ class Validator(BaseValidatorNeuron):
         - Apply rank weight for open category model.
         """
         weights = np.zeros(len(self.miner_manager.all_uids))
+        # Smoothing update incentive
+        temp_incentive_weight = {}
+        if datetime.now() < datetime(2025, 2, 27, 16, 0, 0, 0, tzinfo=timezone.utc):
+            temp_incentive_weight = {
+                "GoJourney": 0.02908,
+                "SUPIR": 0.04072,
+                "FluxSchnell": 0.11633,
+                "Kolors": 0.05816,
+                "OpenGeneral": 0.05816,
+                "OpenDigitalArt": 0.05816,
+                "OpenDigitalArtMinimalist": 0.05816,
+                "OpenTraditionalArtSketch": 0.05816,
+                "Pixtral_12b": 0.02908,
+                "DeepSeek_R1_Distill_Llama_70B": 0.05816,
+                "Recycle": 0.3458,
+                "Stake_based": 0.09,
+            }
+        else:
+            temp_incentive_weight = {
+                "GoJourney": 0.04,
+                "SUPIR": 0.05,
+                "FluxSchnell": 0.10,
+                "Kolors": 0.05,
+                "OpenGeneral": 0.07,
+                "OpenDigitalArt": 0.07,
+                "OpenTraditionalArtSketch": 0.07,
+                "DeepSeek_R1_Distill_Llama_70B": 0.07,
+                "Recycle": 0.47,
+                "Stake_based": 0.01,
+
+                # Deprecated models
+                "Pixtral_12b": 0.00,
+                "OpenDigitalArtMinimalist": 0.00,
+            }
+        
+        bt.logging.info(f"Using temp_incentive_weight: {temp_incentive_weight}")
+        # Calculate the sum of temp_incentive_weight
+        sum_temp_incentive_weight = sum(temp_incentive_weight.values())
+        bt.logging.info(f"Sum of temp_incentive_weight: {sum_temp_incentive_weight}")
 
         for model_name in self.nicheimage_catalogue.keys():
             model_specific_weights = self.miner_manager.get_model_specific_weights(model_name)
@@ -715,13 +765,10 @@ class Validator(BaseValidatorNeuron):
                     model_specific_weights = model_specific_weights / raw_weight_sum
 
                 bt.logging.debug(f"Normalized {model_name} weights\n{model_specific_weights}")
-            # Smoothing update incentive
-            temp_incentive_weight = {}
 
-            # TODO: after we updated weights, we need to update the model_incentive_weight in the miner_manager
             if model_name in temp_incentive_weight:
                 bt.logging.info(
-                    f"Using temp_incentive_weight: {temp_incentive_weight} for {model_name}"
+                    f"Using temp_incentive_weight: {temp_incentive_weight[model_name]} for {model_name}"
                 )
                 model_specific_weights = (
                     model_specific_weights * temp_incentive_weight[model_name]
@@ -899,57 +946,12 @@ class Validator(BaseValidatorNeuron):
                 
         return bonus_scores
     
-    def get_recycle_weights(self):
-        """
-        Calculates decay-based scores for recycler miners based on their registration date.
-        
-        The score starts at 1.0 and decays by 10% each day (0.9^days) for up to 100 days.
-        After 100 days, the score effectively becomes zero.
-        
-        Returns:
-            np.ndarray: Array of recycle scores matching the shape of self.scores, where
-                       each recycler miner's score is determined by their registration age.
-        """
-        # Update registration data from API
-        self.miner_manager.update_registration_log_from_api()
-        
-        # Initialize scores array
-        recycle_weights = np.zeros_like(self.scores)
-        
-        # Get list of UIDs that are running recycler models
-        recycler_uids = self.miner_manager.get_miner_uids(model_name='Recycle')
-        if not recycler_uids:
-            return recycle_weights
-            
-        # Calculate decay factors for each day (0.9^day)
-        DAILY_DECAY_RATE = 0.9
-        MAX_DAYS = 100
-        decay_factors = {
-            day: DAILY_DECAY_RATE ** day 
-            for day in range(MAX_DAYS)
-        }
-        
-        # Get registration age for all miners
-        days_since_registration = self._calculate_registration_days()
-        
-        # Apply decay factors based on registration age
-        for uid in recycler_uids:
-            days = int(days_since_registration[uid])
-            if days < MAX_DAYS:
-                recycle_weights[uid] = decay_factors[days]
-                
-        return recycle_weights
-
+    # MARK: Set weights
     @override
     def set_weights(self):
         """
         Sets the validator weights to the metagraph hotkeys based on the scores it has received from the miners. The weights determine the trust and incentive level the validator assigns to miner nodes on the network.
         """
-        # Add bonus scores to new registered uids
-        bonus_scores = self.get_bonus_scores()
-        bt.logging.info(f"Bonus scores: {bonus_scores}")
-        self.scores = self.scores + bonus_scores
-
         # Check if self.scores contains any NaN values and log a warning if it does.
         if np.isnan(self.scores).any():
             bt.logging.warning(
@@ -958,33 +960,11 @@ class Validator(BaseValidatorNeuron):
 
         # Calculate the average reward for each uid across non-zero values.
         # Replace any NaN values with 0.
-        specific_model_raw_weights = np.nan_to_num(self.scores, nan=0)
-        specific_model_raw_weight_sum = np.sum(np.abs(specific_model_raw_weights), axis=0, keepdims=True)
-        if not specific_model_raw_weight_sum == 0:
-            specific_model_raw_weights = specific_model_raw_weights / specific_model_raw_weight_sum
-        bt.logging.info(f"Specific model raw weights: {specific_model_raw_weights}")
-
-        # Add recycle scores to new registered uids
-        recycle_raw_weights = self.get_recycle_weights()
-        recycle_raw_weights = np.nan_to_num(recycle_raw_weights, nan=0)
-        recycle_weight_sum = np.sum(np.abs(recycle_raw_weights), axis=0, keepdims=True)
-        if not recycle_weight_sum == 0:
-            recycle_raw_weights = recycle_raw_weights / recycle_weight_sum
-        bt.logging.info(f"Recycle raw weights: {recycle_raw_weights}")
-
-        # Calculate weights base on alpha stake
-        alpha_raw_weights = np.nan_to_num(self.metagraph.alpha_stake, nan=0)
-        alpha_raw_weight_sum = np.sum(np.abs(alpha_raw_weights), axis=0, keepdims=True)
-        if not alpha_raw_weight_sum == 0:
-            alpha_raw_weights = alpha_raw_weights / alpha_raw_weight_sum
-        bt.logging.info(f"Alpha raw weights: {alpha_raw_weights}")  
-
-        # Calculate raw weights using the service
-        raw_weights = self.weight_service.calculate_transition_weights(
-            alpha_raw_weights,
-            specific_model_raw_weights,
-            recycle_raw_weights
-        )
+        raw_weights = np.nan_to_num(self.scores, nan=0)
+        raw_weight_sum = np.sum(np.abs(raw_weights), axis=0, keepdims=True)
+        if not raw_weight_sum == 0:
+            raw_weights = raw_weights / raw_weight_sum
+            
         bt.logging.info(f"Raw weights: {raw_weights}")
         bt.logging.trace("Top 10 values:", np.sort(raw_weights))
         bt.logging.trace("Top 10 uids:", np.argsort(raw_weights))
