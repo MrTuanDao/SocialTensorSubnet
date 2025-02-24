@@ -69,7 +69,7 @@ class MinerManager:
         }
         if only_layer_one:
             bt.logging.debug(f"Some layer one miners: {list(responses.items())[:5]}")
-        responses = {k: v for k, v in responses.items() if v}
+        responses = {k: v for k, v in responses.items()}
         return responses
 
     def update_layer_zero(self, responses: dict):
@@ -108,6 +108,10 @@ class MinerManager:
             )
             miner_state["registration_time"] = days_since_registration_dict.get(uid, None)
             model_name = info.get("model_name", "Recycle")
+            if model_name == "Recycle":
+                miner_state["scores"] = [0.9 ** days_since_registration_dict.get(uid, 1000)] * 10
+            if self.metagraph.stake[uid] >= 10000:
+                model_name = "Validator"
             raw_volume = info.get("total_volume", 40)  # Default to 40 if not specified
             min_allowed_volume = 40
             max_allowed_volume = 256
@@ -132,20 +136,6 @@ class MinerManager:
             miner_state["model_name"] = model_name
             miner_state["scores"] = []
             miner_state["process_time"] = []
-        
-        # Update indentity of Recycle and Validator
-        for uid in [int(uid) for uid in self.metagraph.uids]:
-            bt.logging.info(f"Updating identity for {uid}") # DEBUG
-            miner_state = self.all_uids_info.setdefault(
-                uid,
-                {"scores": [], "model_name": "", "process_time": []},
-            )
-            miner_state["registration_time"] = days_since_registration_dict.get(uid, None)
-            model_name = miner_state["model_name"]
-            if model_name == "Recycle" or model_name == "":
-                miner_state["scores"] = [0.9 ** days_since_registration_dict.get(uid, 1000)] * 10
-            if self.metagraph.stake[uid] >= 10000:
-                model_name = "Validator"
 
         bt.logging.success("Updated miner identity")
         model_distribution = {}
