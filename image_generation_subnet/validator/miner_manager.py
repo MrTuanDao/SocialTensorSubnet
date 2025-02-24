@@ -139,7 +139,8 @@ class MinerManager:
                 {"scores": [], "model_name": "", "process_time": []},
             )
             miner_state["registration_time"] = days_since_registration_dict.get(uid, None)
-            if model_name == "Recycle":
+            model_name = miner_state["model_name"]
+            if model_name == "Recycle" or model_name == "":
                 miner_state["scores"] = [0.9 ** days_since_registration_dict.get(uid, 1000)] * 10
             if self.metagraph.stake[uid] >= 10000:
                 model_name = "Validator"
