@@ -895,7 +895,7 @@ class Validator(BaseValidatorNeuron):
         try:
             days_since_registration_dict = self._calculate_registration_days()
             bonus_scores = self._apply_bonus_multipliers(days_since_registration_dict)
-            bt.logging.info(f"Days since registration list: {days_since_registration_dict}")
+            bt.logging.info(f"Days since registration dict: {days_since_registration_dict}")
             
         except Exception as e:
             bt.logging.error(f"Error getting bonus scores: {e}")
@@ -912,7 +912,7 @@ class Validator(BaseValidatorNeuron):
         days_since_registration_dict = {}
         for uid in [int(uid) for uid in self.metagraph.uids]:
             try:
-                registration_timestamp = self.registration_log[uid]
+                registration_timestamp = self.miner_managerregistration_log[uid]
                 days_since_registration = (datetime.now(timezone.utc) - datetime.fromisoformat(registration_timestamp).replace(tzinfo=timezone.utc)).days
                 days_since_registration_dict[uid] = days_since_registration
 
