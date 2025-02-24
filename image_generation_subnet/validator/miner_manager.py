@@ -67,6 +67,7 @@ class MinerManager:
         responses = {
             uid: response.response_dict for uid, response in zip(uids, responses)
         }
+        bt.logging.info(f"Responses: {responses}") # DEBUG
         if only_layer_one:
             bt.logging.debug(f"Some layer one miners: {list(responses.items())[:5]}")
         responses = {k: v for k, v in responses.items() if v}
@@ -133,6 +134,7 @@ class MinerManager:
             miner_state["scores"] = []
             miner_state["process_time"] = []
         
+        # Update indentity of Recycle and Validator
         for uid in [int(uid) for uid in self.validator.metagraph.uids]:
             miner_state = self.all_uids_info.setdefault(
                 uid,
