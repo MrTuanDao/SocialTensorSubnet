@@ -893,9 +893,9 @@ class Validator(BaseValidatorNeuron):
         bonus_scores = np.zeros_like(self.scores)
         self.miner_manager.update_registration_log_from_api()
         try:
-            days_since_registration_list = self._calculate_registration_days()
-            bonus_scores = self._apply_bonus_multipliers(days_since_registration_list)
-            bt.logging.info(f"Days since registration list: {days_since_registration_list}")
+            days_since_registration_dict = self._calculate_registration_days()
+            bonus_scores = self._apply_bonus_multipliers(days_since_registration_dict)
+            bt.logging.info(f"Days since registration list: {days_since_registration_dict}")
             
         except Exception as e:
             bt.logging.error(f"Error getting bonus scores: {e}")
@@ -907,25 +907,21 @@ class Validator(BaseValidatorNeuron):
         Calculate days since registration for each UID.
         
         Returns:
-            np.ndarray: Array containing days since registration for each UID
+            dict: Dictionary containing days since registration for each UID
         """
-        days_since_registration_list = np.zeros_like(self.scores)
+        days_since_registration_dict = {}
         for uid in [int(uid) for uid in self.metagraph.uids]:
             try:
-                registration_timestamp = self.miner_manager.registration_log[uid]
+                registration_timestamp = self.registration_log[uid]
                 days_since_registration = (datetime.now(timezone.utc) - datetime.fromisoformat(registration_timestamp).replace(tzinfo=timezone.utc)).days
-                days_since_registration_list[uid] = days_since_registration
+                days_since_registration_dict[uid] = days_since_registration
 
             except Exception as e:
                 bt.logging.error(f"Error calculating registration days for uid {uid}: {e}")
-                if uid < len(days_since_registration_list):
-                    days_since_registration_list[uid] = 1000  # Ensures no bonus for this uid
-                else:
-                    bt.logging.error(f"Days since registration list is not large enough for uid {uid}")
                 
-        return days_since_registration_list
+        return days_since_registration_dict
 
-    def _apply_bonus_multipliers(self, days_since_registration_list: np.ndarray) -> np.ndarray:
+    def _apply_bonus_multipliers(self, days_since_registration_dict: dict) -> np.ndarray:
         """
         Apply bonus multipliers based on days since registration.
         
@@ -942,7 +938,7 @@ class Validator(BaseValidatorNeuron):
         }
         
         not_bonus_uids = self.miner_manager.get_miner_uids("Recycle") + self.miner_manager.get_miner_uids("Validator")
-        for uid, days in enumerate(days_since_registration_list):
+        for uid, days in days_since_registration_dict.items():
             if 0 <= days < 10 and uid not in not_bonus_uids:
                 bonus_scores[uid] = bonus_percent_dict[int(days)] * self.scores[uid]
                 
