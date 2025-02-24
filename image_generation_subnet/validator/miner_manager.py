@@ -102,6 +102,7 @@ class MinerManager:
 
         if not valid_miners_info:
             bt.logging.warning("No active miner available. Skipping setting weights.")
+        bt.logging.info(f"Valid miners info: {valid_miners_info}") # DEBUG
         for uid, info in valid_miners_info.items():
             miner_state = self.all_uids_info.setdefault(
                 uid,
