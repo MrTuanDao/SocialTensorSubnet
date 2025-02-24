@@ -332,7 +332,7 @@ class Validator(BaseValidatorNeuron):
         self.challenge_urls = initialize_challenge_urls(self.config)
         self.nicheimage_catalogue = initialize_nicheimage_catalogue(self.config)
         self.open_category_reward_synapses = self.init_reward_open_category_synapses()
-        self.miner_manager = MinerManager(self)
+        self.miner_manager = MinerManager(self, self.metagraph)
         self.load_state()
         self.update_scores_on_chain()
         self.sync()
