@@ -701,6 +701,7 @@ class Validator(BaseValidatorNeuron):
             if self.nicheimage_catalogue[k]["reward_type"] == "open_category"
         }
 
+    # MARK: Update scores on chain
     def update_scores_on_chain(self):
         """
         Update weights based on incentive pool and model specific weights.
@@ -709,7 +710,7 @@ class Validator(BaseValidatorNeuron):
         weights = np.zeros(len(self.miner_manager.all_uids))
         # Smoothing update incentive
         temp_incentive_weight = {}
-        if datetime.now() < datetime(2025, 2, 27, 16, 0, 0, 0, tzinfo=timezone.utc):
+        if datetime.now(timezone.utc) < datetime(2025, 2, 27, 16, 0, 0, 0, tzinfo=timezone.utc):
             temp_incentive_weight = {
                 "GoJourney": 0.02908,
                 "SUPIR": 0.04072,
