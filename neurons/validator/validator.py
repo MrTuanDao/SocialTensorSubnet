@@ -912,7 +912,7 @@ class Validator(BaseValidatorNeuron):
         days_since_registration_dict = {}
         for uid in [int(uid) for uid in self.metagraph.uids]:
             try:
-                registration_timestamp = self.miner_managerregistration_log[uid]
+                registration_timestamp = self.miner_manager.registration_log[uid]
                 days_since_registration = (datetime.now(timezone.utc) - datetime.fromisoformat(registration_timestamp).replace(tzinfo=timezone.utc)).days
                 days_since_registration_dict[uid] = days_since_registration
 
