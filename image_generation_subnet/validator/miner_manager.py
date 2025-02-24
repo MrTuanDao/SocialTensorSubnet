@@ -178,7 +178,11 @@ class MinerManager:
         Get the model specific weights for the given model name.
         """
         model_specific_weights = np.zeros(len(self.all_uids))
-        for uid in self.get_miner_uids(model_name):
+        uids = self.get_miner_uids(model_name)
+        if model_name == "Recycle":
+            uids += self.get_miner_uids("Validator") # Validator is also counted as Recycle
+
+        for uid in uids:
             num_past_to_check = 10
             model_specific_weights[int(uid)] = (
                 sum(self.all_uids_info[uid]["scores"][-num_past_to_check:])
